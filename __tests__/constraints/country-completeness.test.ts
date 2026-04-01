@@ -15,7 +15,7 @@ import { SUPPORTED_COUNTRY_CODES } from '../../src/constants/countries';
  * - __tests__/schemas/<ISO>.test.ts (schema tests using runSharedSchemaTests)
  * - __tests__/services/submission/mappings/<ISO>.test.ts (mapping tests)
  * - .context/external/countries/<iso>.md (portal documentation)
- * - Flag case in CountryFlag.tsx
+ * - ALPHA3_TO_ALPHA2 entry in CountryFlag.tsx (for flag emoji rendering)
  *
  * Anti-patterns:
  * - Adding a schema without a mapping file (auto-fill silently fails)
@@ -29,18 +29,19 @@ const FLAG_COMPONENT_PATH = path.resolve(ROOT, 'src/components/trips/CountryFlag
 
 describe('Country completeness', () => {
   const flagSource = fs.readFileSync(FLAG_COMPONENT_PATH, 'utf8');
-  const flagCases = new Set(
-    Array.from(flagSource.matchAll(/case\s+'([A-Z]{3})':/g)).map(m => m[1]),
+  // CountryFlag uses ALPHA3_TO_ALPHA2 map for flag emoji rendering
+  const flagEntries = new Set(
+    Array.from(flagSource.matchAll(/([A-Z]{3}):\s*'[A-Z]{2}'/g)).map(m => m[1]),
   );
 
   it('every supported country has a flag implementation', () => {
-    const missing = SUPPORTED_COUNTRY_CODES.filter(code => !flagCases.has(code));
+    const missing = SUPPORTED_COUNTRY_CODES.filter(code => !flagEntries.has(code));
     expect(missing).toEqual([]);
   });
 
-  it('no flag cases for unsupported countries', () => {
+  it('no flag entries for unsupported countries', () => {
     const codes = new Set(SUPPORTED_COUNTRY_CODES);
-    const extra = Array.from(flagCases).filter(code => !codes.has(code));
+    const extra = Array.from(flagEntries).filter(code => !codes.has(code));
     expect(extra).toEqual([]);
   });
 

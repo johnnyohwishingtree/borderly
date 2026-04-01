@@ -6,6 +6,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button, ScreenContainer } from '@/components/ui';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import type { SupportedCountry } from '@/constants/countries';
+import { CountryFlag } from '@/components/trips';
 import type { FormsStackParamList } from '@/app/navigation/types';
 import { SELECT_COUNTRIES_IDS } from './testIDs';
 
@@ -49,14 +50,7 @@ export default function SelectCountriesScreen() {
         accessibilityLabel={`${item.name}${isSelected ? ', selected' : ''}`}
         testID={`${SELECT_COUNTRIES_IDS.countryRow.id}-${item.code}`}
       >
-        <View
-          className="w-8 h-5 rounded-sm mr-3 overflow-hidden flex-row"
-          accessibilityElementsHidden
-        >
-          {item.colors.slice(0, 3).map((color, i) => (
-            <View key={i} style={{ flex: 1, backgroundColor: color }} />
-          ))}
-        </View>
+        <CountryFlag countryCode={item.code} size="small" />
         <Text className="text-base text-gray-900 dark:text-white flex-1">
           {item.name}
         </Text>
