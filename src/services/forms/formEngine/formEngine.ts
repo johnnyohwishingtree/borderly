@@ -306,17 +306,9 @@ function getDefaultValue(field: FormField): unknown {
       return field.validation?.min ?? 0;
 
     case 'select':
-      return field.options?.[0]?.value ?? '';
-
     case 'searchable_select':
-      // If the field uses an optionsSource (e.g., 'airports'), the UI renders
-      // options from an external data source, not inline options. Defaulting to
-      // the first inline option would produce an invalid value that the UI
-      // wouldn't recognise, so always return '' for optionsSource fields.
-      if (field.optionsSource) {
-        return '';
-      }
-      return field.options?.[0]?.value ?? '';
+      // Never pre-select the first option — it's misleading. Show placeholder instead.
+      return '';
 
     case 'text':
     case 'textarea':

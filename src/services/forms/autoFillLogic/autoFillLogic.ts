@@ -276,13 +276,12 @@ function getDefaultAutoFill(field: FormField, context: FormContext): AutoFillRes
       return { value: false, source: 'default', confidence: 0.7 };
 
     case 'select':
-      // Smart select defaults
+      // Smart select defaults — only use if there's a confident match, never first option
       if (field.options && field.options.length > 0) {
         const smartOption = getSmartSelectDefault(field, context);
         if (smartOption) {
           return { value: smartOption, source: 'smart', confidence: 0.75 };
         }
-        return { value: field.options[0].value, source: 'default', confidence: 0.5 };
       }
       break;
 

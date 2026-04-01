@@ -276,8 +276,8 @@ describe('FormEngine', () => {
       const purposeField = result.sections[1].fields[2];
       expect(purposeField.id).toBe('purposeOfVisit');
       expect(purposeField.needsUserInput).toBe(true);
-      expect(purposeField.source).toBe('default');
-      expect(purposeField.currentValue).toBe('tourism'); // First option as default
+      expect(purposeField.source).toBe('empty');
+      expect(purposeField.currentValue).toBe(''); // Select fields show placeholder, not first option
 
       const currencyField = result.sections[3].fields[1];
       expect(currencyField.id).toBe('currencyOver1M');
@@ -620,9 +620,9 @@ describe('FormEngine', () => {
         expect(fields[4].currentValue).toBe(false);
         expect(fields[4].source).toBe('auto');
 
-        // Select field should use default (first option)
-        expect(fields[5].currentValue).toBe('option1');
-        expect(fields[5].source).toBe('default');
+        // Select field should show placeholder (empty), not first option
+        expect(fields[5].currentValue).toBe('');
+        expect(fields[5].source).toBe('empty');
         expect(fields[5].needsUserInput).toBe(true);
       });
 
