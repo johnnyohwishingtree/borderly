@@ -49,7 +49,7 @@ export function useSettings() {
     lockTimeoutMinutes,
     setLockTimeoutMinutes,
   } = useAppStore();
-  const { familyProfiles, setOnboardingComplete } = useProfileStore();
+  const { familyProfiles, setOnboardingComplete, loadFamilyProfiles } = useProfileStore();
 
   const [isCheckingBiometric, setIsCheckingBiometric] = useState(false);
   const [storageStats, setStorageStats] = useState<{
@@ -304,6 +304,7 @@ export function useSettings() {
                     try {
                       const profileIds = Array.from(familyProfiles.profiles.keys());
                       await deleteAllData(profileIds);
+                      await loadFamilyProfiles();
                       setOnboardingComplete(false);
                     } catch {
                       Alert.alert('Error', 'Failed to delete all data. Some data may remain. Please try again.');
