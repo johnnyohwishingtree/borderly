@@ -91,7 +91,7 @@ export default function StatusBadge({
       neutral: {
         filled: 'text-white',
         outlined: 'text-secondary',
-        soft: 'text-gray-800',
+        soft: 'text-secondary',
       },
     };
 

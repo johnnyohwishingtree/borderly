@@ -51,9 +51,9 @@ export default function Divider({
     };
 
     const colorStyles = {
-      light: 'bg-gray-200',
-      medium: 'bg-gray-300',
-      dark: 'bg-gray-400',
+      light: 'bg-border-default',
+      medium: 'bg-border-default',
+      dark: 'bg-border-light',
     };
 
     const variantStyles = {

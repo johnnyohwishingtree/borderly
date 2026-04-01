@@ -24,36 +24,36 @@
  *   border-light        Subtle separators
  */
 
-@layer base {
-  :root {
-    --color-text-primary: #111827;       /* gray-900 */
-    --color-text-secondary: #4b5563;     /* gray-600 */
-    --color-text-tertiary: #6b7280;      /* gray-500 */
-    --color-text-muted: #9ca3af;         /* gray-400 */
-    --color-text-accent: #2563eb;        /* blue-600 */
-    --color-text-error: #dc2626;         /* red-600 */
-    --color-text-success: #16a34a;       /* green-600 */
-    --color-text-warning: #d97706;       /* amber-600 */
-    --color-bg-surface: #ffffff;         /* white */
-    --color-bg-surface-secondary: #f9fafb; /* gray-50 */
-    --color-bg-surface-tertiary: #f3f4f6; /* gray-100 */
-    --color-border-default: #e5e7eb;     /* gray-200 */
-    --color-border-light: #f3f4f6;       /* gray-100 */
-  }
+:root {
+  --color-text-primary: #111827;       /* gray-900 */
+  --color-text-secondary: #4b5563;     /* gray-600 */
+  --color-text-tertiary: #6b7280;      /* gray-500 */
+  --color-text-muted: #9ca3af;         /* gray-400 */
+  --color-text-accent: #2563eb;        /* blue-600 */
+  --color-text-error: #dc2626;         /* red-600 */
+  --color-text-success: #16a34a;       /* green-600 */
+  --color-text-warning: #d97706;       /* amber-600 */
+  --color-bg-surface: #ffffff;         /* white */
+  --color-bg-surface-secondary: #f9fafb; /* gray-50 */
+  --color-bg-surface-tertiary: #f3f4f6; /* gray-100 */
+  --color-border-default: #e5e7eb;     /* gray-200 */
+  --color-border-light: #f3f4f6;       /* gray-100 */
+}
 
-  .dark {
-    --color-text-primary: #ffffff;        /* white */
-    --color-text-secondary: #9ca3af;      /* gray-400 */
-    --color-text-tertiary: #6b7280;       /* gray-500 */
-    --color-text-muted: #4b5563;          /* gray-600 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text-primary: #f1f5f9;        /* slate-100 (softer than pure white) */
+    --color-text-secondary: #94a3b8;      /* slate-400 */
+    --color-text-tertiary: #64748b;       /* slate-500 */
+    --color-text-muted: #475569;          /* slate-600 */
     --color-text-accent: #60a5fa;         /* blue-400 */
     --color-text-error: #f87171;          /* red-400 */
     --color-text-success: #4ade80;        /* green-400 */
     --color-text-warning: #fbbf24;        /* amber-400 */
-    --color-bg-surface: #111827;          /* gray-900 */
-    --color-bg-surface-secondary: #1f2937; /* gray-800 */
-    --color-bg-surface-tertiary: #374151;  /* gray-700 */
-    --color-border-default: #374151;      /* gray-700 */
-    --color-border-light: #1f2937;        /* gray-800 */
+    --color-bg-surface: #0f172a;          /* slate-900 (deep base) */
+    --color-bg-surface-secondary: #1e293b; /* slate-800 (cards, grouped) */
+    --color-bg-surface-tertiary: #334155;  /* slate-700 (raised, interactive) */
+    --color-border-default: #475569;      /* slate-600 (clearly visible) */
+    --color-border-light: #334155;        /* slate-700 */
   }
 }

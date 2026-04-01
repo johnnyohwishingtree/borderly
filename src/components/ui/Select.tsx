@@ -104,10 +104,10 @@ export default function Select({
       errorStyles = error ? 'border-black bg-white' : 'border-gray-800';
       disabledStyles = disabled ? 'bg-gray-200 opacity-60 border-gray-600' : 'bg-white';
     } else {
-      errorStyles = error ? 'border-red-500 bg-red-50/30 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-600';
+      errorStyles = error ? 'border-red-500 bg-red-50/30 dark:bg-red-900/20' : 'border-border-default';
       disabledStyles = disabled
-        ? 'bg-gray-100 dark:bg-gray-700 opacity-60'
-        : 'bg-white dark:bg-gray-800';
+        ? 'bg-surface-tertiary opacity-60'
+        : 'bg-surface';
     }
 
     return `${baseStyles} ${errorStyles} ${disabledStyles} ${className || ''}`;
@@ -121,8 +121,8 @@ export default function Select({
       valueStyles = selectedOption ? 'text-black' : 'text-gray-700';
     } else {
       valueStyles = selectedOption
-        ? 'text-gray-900 dark:text-gray-100'
-        : 'text-gray-500 dark:text-gray-400';
+        ? 'text-primary'
+        : 'text-tertiary';
     }
 
     return `${baseStyles} ${valueStyles}`;
@@ -130,13 +130,13 @@ export default function Select({
 
   const getLabelStyles = () => {
     const baseStyles = 'text-sm font-semibold mb-2';
-    const colorStyles = highContrastMode ? 'text-black' : 'text-gray-700 dark:text-gray-300';
+    const colorStyles = highContrastMode ? 'text-black' : 'text-secondary';
     return `${baseStyles} ${colorStyles}`;
   };
 
   const getErrorStyles = () => {
     const baseStyles = 'text-sm mt-2 font-medium';
-    const colorStyles = highContrastMode ? 'text-black' : 'text-red-600 dark:text-red-400';
+    const colorStyles = highContrastMode ? 'text-black' : 'text-error';
     return `${baseStyles} ${colorStyles}`;
   };
 
@@ -208,7 +208,7 @@ export default function Select({
           {selectedOption?.label || placeholder}
         </Text>
         <Text
-          className={highContrastMode ? 'text-black text-lg' : 'text-gray-400 dark:text-gray-500 text-lg'}
+          className={highContrastMode ? 'text-black text-lg' : 'text-muted text-lg'}
           accessible={false}
         >
           {isOpen ? '▲' : '▼'}
@@ -250,15 +250,15 @@ export default function Select({
             className={`rounded-2xl mx-4 max-h-80 w-full max-w-sm shadow-2xl ${
               highContrastMode
                 ? 'bg-white border-2 border-black'
-                : 'bg-white dark:bg-gray-800 shadow-gray-900/25'
+                : 'bg-surface shadow-gray-900/25'
             }`}
             accessible={false}
           >
             <View className={`p-4 ${
-              highContrastMode ? 'border-b-2 border-black' : 'border-b border-gray-100 dark:border-gray-700'
+              highContrastMode ? 'border-b-2 border-black' : 'border-b border-border-light'
             }`}>
               <Text className={`text-lg font-semibold ${
-                highContrastMode ? 'text-black' : 'text-gray-900 dark:text-gray-100'
+                highContrastMode ? 'text-black' : 'text-primary'
               }`}>
                 {label || 'Select an option'}
               </Text>
@@ -276,7 +276,7 @@ export default function Select({
                     className={`p-4 ${
                       highContrastMode
                         ? (isSelected ? 'bg-gray-200 border-b-2 border-black' : 'border-b border-gray-400')
-                        : `border-b border-gray-100 dark:border-gray-700${isSelected ? ' bg-blue-50 dark:bg-blue-900/30' : ''}`
+                        : `border-b border-border-light${isSelected ? ' bg-blue-50 dark:bg-blue-900/30' : ''}`
                     }`}
                     onPress={() => !isDisabled && handleSelect(item.value)}
                     disabled={isDisabled}
@@ -299,10 +299,10 @@ export default function Select({
                   >
                     <Text className={`text-base ${
                       isDisabled
-                        ? (highContrastMode ? 'text-gray-600' : 'text-gray-400 dark:text-gray-500')
+                        ? (highContrastMode ? 'text-gray-600' : 'text-muted')
                         : isSelected
                           ? (highContrastMode ? 'text-black font-bold' : 'text-blue-600 dark:text-blue-400 font-medium')
-                          : (highContrastMode ? 'text-black' : 'text-gray-900 dark:text-gray-100')
+                          : (highContrastMode ? 'text-black' : 'text-primary')
                     }`}>
                       {item.label}
                       {isSelected && ' ✓'}

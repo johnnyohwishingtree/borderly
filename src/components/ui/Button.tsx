@@ -1,4 +1,5 @@
-import { Pressable, Text, ActivityIndicator, useColorScheme } from 'react-native';
+import { Pressable, Text, ActivityIndicator } from 'react-native';
+import { useColorScheme } from 'nativewind';
 import { HapticFeedback } from './HapticFeedback';
 import {
   TouchTargetUtils,
@@ -35,7 +36,7 @@ export default function Button({
   highContrastMode = false,
   testID,
 }: ButtonProps) {
-  const colorScheme = useColorScheme();
+  const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
 
   const getButtonStyles = () => {
@@ -55,7 +56,7 @@ export default function Button({
     } : {
       primary: 'bg-blue-600 dark:bg-blue-500 shadow-lg shadow-blue-600/25',
       secondary: 'bg-transparent',
-      outline: 'bg-transparent border-2 border-gray-300 dark:border-gray-600 shadow-sm',
+      outline: 'bg-transparent border-2 border-border-default shadow-sm',
     };
 
     const disabledStyles = disabled || loading ? 'opacity-50 shadow-none' : '';
@@ -80,7 +81,7 @@ export default function Button({
     } : {
       primary: 'text-white',
       secondary: 'text-blue-600 dark:text-blue-400',
-      outline: 'text-gray-700 dark:text-gray-200',
+      outline: 'text-primary',
     };
 
     return `${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]}`;

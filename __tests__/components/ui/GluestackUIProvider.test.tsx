@@ -1,4 +1,3 @@
-import React from 'react';
 import { render } from '@testing-library/react-native';
 import { Text } from 'react-native';
 import { GluestackUIProvider } from '../../../src/components/ui/gluestack-ui-provider';

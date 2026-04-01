@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TextInputProps, useColorScheme } from 'react-native';
+import { View, Text, TextInput, TextInputProps } from 'react-native';
+import { useColorScheme } from 'nativewind';
 import { trigger } from 'react-native-haptic-feedback';
 import { 
   ACCESSIBILITY_CONSTANTS,
@@ -37,7 +38,7 @@ export default function Input({
   ...textInputProps
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
-  const colorScheme = useColorScheme();
+  const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
 
   // Generate unique IDs for accessibility relationships
@@ -47,7 +48,7 @@ export default function Input({
   const helperTextId = `${inputId}-helper`;
 
   const getInputStyles = () => {
-    const baseStyles = `border-2 rounded-xl px-4 py-3.5 text-base bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all duration-200 min-h-[${ACCESSIBILITY_CONSTANTS.MIN_TOUCH_TARGET}px]`;
+    const baseStyles = `border-2 rounded-xl px-4 py-3.5 text-base bg-surface text-primary transition-all duration-200 min-h-[${ACCESSIBILITY_CONSTANTS.MIN_TOUCH_TARGET}px]`;
 
     let errorStyles, focusStyles;
 
@@ -57,7 +58,7 @@ export default function Input({
         ? 'border-black shadow-lg bg-gray-50 scale-[1.01]'
         : 'shadow-sm';
     } else {
-      errorStyles = error ? 'border-red-500 bg-red-50/30 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-600';
+      errorStyles = error ? 'border-red-500 bg-red-50/30 dark:bg-red-900/20' : 'border-border-default';
       focusStyles = isFocused
         ? 'border-blue-500 shadow-lg shadow-blue-500/25 bg-blue-50/10 dark:bg-blue-900/10 scale-[1.01]'
         : 'shadow-sm';
@@ -68,19 +69,19 @@ export default function Input({
 
   const getLabelStyles = () => {
     const baseStyles = 'text-sm font-semibold mb-2';
-    const colorStyles = highContrastMode ? 'text-black' : 'text-gray-700 dark:text-gray-300';
+    const colorStyles = highContrastMode ? 'text-black' : 'text-secondary';
     return `${baseStyles} ${colorStyles}`;
   };
 
   const getErrorStyles = () => {
     const baseStyles = 'text-sm mt-2 font-medium';
-    const colorStyles = highContrastMode ? 'text-black' : 'text-red-600 dark:text-red-400';
+    const colorStyles = highContrastMode ? 'text-black' : 'text-error';
     return `${baseStyles} ${colorStyles}`;
   };
 
   const getHelperTextStyles = () => {
     const baseStyles = 'text-sm mt-2';
-    const colorStyles = highContrastMode ? 'text-gray-800' : 'text-gray-500 dark:text-gray-400';
+    const colorStyles = highContrastMode ? 'text-gray-800' : 'text-tertiary';
     return `${baseStyles} ${colorStyles}`;
   };
 

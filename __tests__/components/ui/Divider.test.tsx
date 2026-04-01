@@ -60,7 +60,7 @@ describe('Divider', () => {
 
   it('applies dark color styles', () => {
     const r = root(render(<Divider color="dark" />).toJSON);
-    expect(r.props.className).toContain('bg-gray-400');
+    expect(r.props.className).toContain('bg-border-light');
   });
 
   it('applies dashed variant styles', () => {

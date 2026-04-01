@@ -33,7 +33,7 @@ export default function Card({
   const getCardStyles = (pressed = false) => {
     const baseStyles = highContrastMode
       ? 'bg-white border-2 border-black transition-all duration-150'
-      : 'bg-white dark:bg-gray-800 transition-all duration-150';
+      : 'bg-surface transition-all duration-150';
     const pressedStyles = pressed && onPress ? 'scale-[0.98] shadow-sm' : '';
 
     const radiusStyles = {
@@ -49,9 +49,9 @@ export default function Card({
       ghost: 'bg-gray-100 border-2 border-gray-800',
     } : {
       default: '',
-      outlined: 'border border-gray-200 dark:border-gray-700',
-      elevated: 'shadow-lg shadow-gray-900/10 border border-gray-100 dark:border-gray-700',
-      ghost: 'bg-gray-50/50 dark:bg-gray-700/50',
+      outlined: 'border border-border-default',
+      elevated: 'shadow-lg shadow-gray-900/10 border border-border-light',
+      ghost: 'bg-surface-secondary',
     };
 
     const paddingStyles = {

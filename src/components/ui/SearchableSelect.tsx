@@ -52,7 +52,7 @@ export default function SearchableSelect({
       {/* Trigger button */}
       <Pressable
         className={`border-2 rounded-xl px-4 py-3.5 flex-row justify-between items-center ${
-          error ? 'border-red-500 bg-red-50/30' : 'border-border-default bg-white'
+          error ? 'border-red-500 bg-red-50/30' : 'border-border-default bg-surface'
         } ${disabled ? 'bg-surface-tertiary opacity-60' : ''}`}
         onPress={() => {
           if (!disabled) {
@@ -107,7 +107,7 @@ export default function SearchableSelect({
               const isSelected = item.value === value;
               return (
                 <Pressable
-                  className={`p-3 border-b border-border-light ${isSelected ? 'bg-blue-50' : ''}`}
+                  className={`p-3 border-b border-border-light ${isSelected ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`}
                   onPress={() => handleSelect(item.value)}
                   testID={testID ? `${testID}-option-${item.value}` : undefined}
                   accessible={true}
