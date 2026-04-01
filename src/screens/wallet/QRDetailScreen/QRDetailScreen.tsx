@@ -154,12 +154,6 @@ export default function QRDetailScreen() {
               </Text>
 
               <Button
-                title="View Full Screen"
-                onPress={handleViewFullScreen}
-                variant="primary"
-              />
-
-              <Button
                 title="Share QR Code"
                 onPress={handleShare}
                 variant="secondary"

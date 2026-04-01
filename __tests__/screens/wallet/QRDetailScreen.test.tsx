@@ -231,8 +231,7 @@ describe('QRDetailScreen — action buttons', () => {
   it('renders all action buttons', async () => {
     render(<QRDetailScreen />);
 
-    await screen.findByText('View Full Screen');
-    screen.getByText('Share QR Code');
+    await screen.findByText('Share QR Code');
     screen.getByText('Delete QR Code');
   });
 });
@@ -290,14 +289,6 @@ describe('QRDetailScreen — full screen view', () => {
     screen.getByTestId('qr-full-screen');
   });
 
-  it('opens full screen when pressing View Full Screen button', async () => {
-    render(<QRDetailScreen />);
-
-    const btn = await screen.findByText('View Full Screen');
-    fireEvent.press(btn);
-
-    screen.getByTestId('qr-full-screen');
-  });
 });
 
 // ── Usage instructions ───────────────────────────────────────────────────────
