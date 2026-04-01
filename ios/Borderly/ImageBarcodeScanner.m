@@ -2,6 +2,7 @@
 #import <CoreImage/CoreImage.h>
 #import <UIKit/UIKit.h>
 #import <Photos/Photos.h>
+#import <Vision/Vision.h>
 
 @interface ImageBarcodeScanner : NSObject <RCTBridgeModule>
 @end
@@ -56,13 +57,13 @@ RCT_EXPORT_METHOD(scanBarcodesInImage:(NSString *)imageUri
         return;
       }
 
-      CIImage *ciImage = [CIImage imageWithData:imageData];
-      if (!ciImage) {
-        reject(@"IMAGE_ERROR", @"Could not create CIImage from photo", nil);
+      UIImage *image = [UIImage imageWithData:imageData];
+      if (!image || !image.CGImage) {
+        reject(@"IMAGE_ERROR", @"Could not decode photo", nil);
         return;
       }
 
-      [self detectBarcodesInCIImage:ciImage resolve:resolve reject:reject];
+      [self scanBarcodesInCGImage:image.CGImage resolve:resolve reject:reject];
     }];
 }
 
@@ -76,20 +77,21 @@ RCT_EXPORT_METHOD(scanBarcodesInImage:(NSString *)imageUri
     return;
   }
 
-  CIImage *ciImage = [CIImage imageWithData:data];
-  if (!ciImage) {
-    reject(@"IMAGE_ERROR", @"Could not create CIImage", nil);
+  UIImage *image = [UIImage imageWithData:data];
+  if (!image || !image.CGImage) {
+    reject(@"IMAGE_ERROR", @"Could not decode image", nil);
     return;
   }
 
-  [self detectBarcodesInCIImage:ciImage resolve:resolve reject:reject];
+  [self scanBarcodesInCGImage:image.CGImage resolve:resolve reject:reject];
 }
 
-// Uses CIDetector (CPU-based) — works on simulator unlike Vision (GPU-based)
-- (void)detectBarcodesInCIImage:(CIImage *)ciImage
-                        resolve:(RCTPromiseResolveBlock)resolve
-                         reject:(RCTPromiseRejectBlock)reject
+- (void)scanBarcodesInCGImage:(CGImageRef)cgImage
+                      resolve:(RCTPromiseResolveBlock)resolve
+                       reject:(RCTPromiseRejectBlock)reject
 {
+  // First try CIDetector (CPU-based, always works including simulator)
+  CIImage *ciImage = [CIImage imageWithCGImage:cgImage];
   CIContext *context = [CIContext contextWithOptions:@{kCIContextUseSoftwareRenderer: @YES}];
   CIDetector *detector = [CIDetector detectorOfType:CIDetectorTypeQRCode
                                             context:context
@@ -107,52 +109,45 @@ RCT_EXPORT_METHOD(scanBarcodesInImage:(NSString *)imageUri
     }
   }
 
-  // Also try PDF417 and other barcode types via VNDetectBarcodesRequest
-  // but fall back gracefully if Vision framework fails (e.g., on simulator)
-  if (results.count == 0) {
-    @try {
-      // Try Vision framework for PDF417/Aztec (requires GPU, may fail on simulator)
-      Class vnRequestClass = NSClassFromString(@"VNDetectBarcodesRequest");
-      Class vnHandlerClass = NSClassFromString(@"VNImageRequestHandler");
+  // If CIDetector found results, return them immediately
+  if (results.count > 0) {
+    resolve(results);
+    return;
+  }
 
-      if (vnRequestClass && vnHandlerClass) {
-        CGImageRef cgImage = [[CIContext context] createCGImage:ciImage fromRect:ciImage.extent];
-        if (cgImage) {
-          dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-          __block NSArray *vnResults = nil;
+  // Fallback: try Vision framework for PDF417/Aztec (may fail on simulator)
+  dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+  __block BOOL visionSucceeded = NO;
 
-          id request = [[vnRequestClass alloc] initWithCompletionHandler:^(id request, NSError *error) {
-            if (!error) {
-              vnResults = [request results];
-            }
-            dispatch_semaphore_signal(semaphore);
-          }];
-
-          id handler = [[vnHandlerClass alloc] initWithCGImage:cgImage options:@{}];
-          [handler performRequests:@[request] error:nil];
-          dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
-
-          CGImageRelease(cgImage);
-
-          if (vnResults) {
-            for (id observation in vnResults) {
-              NSString *payload = [observation valueForKey:@"payloadStringValue"];
-              NSString *symbology = [observation valueForKey:@"symbology"];
-              if (payload) {
-                [results addObject:@{
-                  @"value": payload,
-                  @"format": symbology ?: @"unknown",
-                }];
-              }
-            }
+  VNDetectBarcodesRequest *request = [[VNDetectBarcodesRequest alloc]
+    initWithCompletionHandler:^(VNRequest *vnRequest, NSError *error) {
+      if (!error && vnRequest.results.count > 0) {
+        for (VNBarcodeObservation *observation in vnRequest.results) {
+          if (observation.payloadStringValue) {
+            [results addObject:@{
+              @"value": observation.payloadStringValue,
+              @"format": observation.symbology ?: @"unknown",
+            }];
           }
         }
+        visionSucceeded = YES;
       }
-    } @catch (NSException *exception) {
-      NSLog(@"[ImageBarcodeScanner] Vision framework fallback failed: %@", exception.reason);
-      // Continue — CIDetector results (if any) are still valid
-    }
+      dispatch_semaphore_signal(semaphore);
+    }];
+
+  VNImageRequestHandler *handler = [[VNImageRequestHandler alloc]
+    initWithCGImage:cgImage options:@{}];
+
+  NSError *visionError = nil;
+  @try {
+    [handler performRequests:@[request] error:&visionError];
+  } @catch (NSException *exception) {
+    NSLog(@"[ImageBarcodeScanner] Vision framework failed: %@", exception.reason);
+    dispatch_semaphore_signal(semaphore);
   }
+
+  // Wait up to 5 seconds for Vision to complete
+  dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
 
   resolve(results);
 }
