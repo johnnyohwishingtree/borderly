@@ -119,10 +119,10 @@ describe('BoardingPassImageImport', () => {
 
       const result = await importBoardingPassFromImage();
 
-      // Since barcode detection is a placeholder, it should fail
+      // ML Kit mock returns empty array → no barcode found
       expect(result.success).toBe(false);
       expect(result.errorCode).toBe('NO_BARCODE_FOUND');
-      expect(result.error).toContain('Barcode detection from static images requires additional native integration');
+      expect(result.error).toContain('No barcode found');
     });
 
     it('should validate image picker options', () => {

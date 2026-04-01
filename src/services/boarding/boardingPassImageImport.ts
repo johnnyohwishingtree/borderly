@@ -165,25 +165,24 @@ async function selectImageFromLibrary(): Promise<{
  * react-native-camera's barcode detection on static images or
  * a dedicated ML Kit image processing library
  */
-async function detectBarcodeInImage(_imageUri: string): Promise<BarcodeDetectionResult> {
+async function detectBarcodeInImage(imageUri: string): Promise<BarcodeDetectionResult> {
   try {
-    // Note: This is a placeholder implementation
-    // In a real app, you would use ML Kit's static image barcode detection
-    // or integrate with react-native-camera's image processing capabilities
-    
-    // For now, we'll simulate the detection process
-    // In production, this would be replaced with actual ML Kit integration
-    return new Promise((resolve) => {
-      // Simulate processing delay
-      setTimeout(() => {
-        // This is where you'd integrate with ML Kit or similar
-        // For demo purposes, we'll return a simulated failure that guides users to use the camera
-        resolve({
-          success: false,
-          error: 'Barcode detection from static images requires additional native integration. Please use the camera scanner instead.',
-        });
-      }, 500);
-    });
+    const BarcodeScanning = require('@react-native-ml-kit/barcode-scanning');
+    const results = await BarcodeScanning.scan(imageUri);
+
+    if (!results || results.length === 0) {
+      return {
+        success: false,
+        error: 'No barcode found in the selected image. Try a clearer photo of your boarding pass.',
+      };
+    }
+
+    return {
+      success: true,
+      barcodeData: results[0].value,
+      barcodeType: results[0].format?.toLowerCase(),
+      multipleFound: results.length > 1,
+    };
   } catch (error) {
     return {
       success: false,

@@ -592,6 +592,11 @@ jest.mock('react-native-svg', () => {
   };
 });
 
+// Mock @react-native-ml-kit/barcode-scanning
+jest.mock('@react-native-ml-kit/barcode-scanning', () => ({
+  scan: jest.fn().mockResolvedValue([]),
+}));
+
 // Mock lucide-react-native
 jest.mock('lucide-react-native', () => {
   const React = require('react');
