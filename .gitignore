@@ -74,6 +74,7 @@ playwright-report/
 !ios/**/*.png
 !android/**/*.png
 !src/screens/**/__screenshots__/**/*.png
+!e2e/fixtures/**/*.png
 !src/screens/**/__screenshots__/manifest.json
 !src/components/**/__screenshots__/**/*.png
 !src/components/**/__screenshots__/manifest.json
