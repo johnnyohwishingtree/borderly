@@ -1,5 +1,4 @@
-import { render, fireEvent, act } from '@testing-library/react-native';
-import { Alert } from 'react-native';
+import { render, fireEvent } from '@testing-library/react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAppStore } from '@/stores/useAppStore';
 import { useProfileStore } from '@/stores/useProfileStore';
@@ -92,21 +91,6 @@ jest.mock('@/components/settings/PortalAccountsCard', () => {
   };
 });
 
-jest.mock('@/components/settings/DataManagementCard', () => {
-  const { View, Text, TouchableOpacity } = require('react-native');
-  return {
-    DataManagementCard: ({ onExportData, onRestoreBackup, onClearCache, onDeleteAllData }: any) => (
-      <View testID="data-management-card">
-        <Text>Data Management</Text>
-        <TouchableOpacity testID="export-data-button" onPress={onExportData}><Text>Export</Text></TouchableOpacity>
-        <TouchableOpacity testID="restore-backup-button" onPress={onRestoreBackup}><Text>Restore</Text></TouchableOpacity>
-        <TouchableOpacity testID="clear-cache-button" onPress={onClearCache}><Text>Clear Cache</Text></TouchableOpacity>
-        <TouchableOpacity testID="delete-all-data-button" onPress={onDeleteAllData}><Text>Delete All</Text></TouchableOpacity>
-      </View>
-    ),
-  };
-});
-
 jest.mock('@/components/ui', () => {
   const { View, Text, TouchableOpacity } = require('react-native');
   return {
@@ -128,29 +112,8 @@ jest.mock('@/components/ui', () => {
         />
       );
     },
-    Select: ({ label, options, value, onValueChange, testID }: any) => {
-      const { View: V, Text: T, TouchableOpacity: TO } = require('react-native');
-      return (
-        <V testID={testID}>
-          <T>{label}</T>
-          {options.map((opt: any) => (
-            <TO
-              key={opt.value}
-              testID={`${testID}-option-${opt.value}`}
-              onPress={() => onValueChange(opt.value)}
-            >
-              <T>{opt.label}</T>
-            </TO>
-          ))}
-          <T testID={`${testID}-value`}>{value}</T>
-        </V>
-      );
-    },
-    SelectOption: {},
     StatusBadge: ({ text, testID }: any) => <Text testID={testID}>{text}</Text>,
     Divider: ({ text }: any) => <View>{text ? <Text>{text}</Text> : null}</View>,
-    LoadingSpinner: ({ text }: any) => <Text>{text ?? 'Loading...'}</Text>,
-    ActivityIndicator: () => <View testID="activity-indicator" />,
   };
 });
 
@@ -183,7 +146,7 @@ function makeDefaultFamilyProfiles() {
 
 const DEFAULT_APP_STORE = {
   preferences: {
-    theme: 'system',
+    theme: 'light',
     language: 'en',
     biometricEnabled: false,
     analyticsEnabled: false,
@@ -200,7 +163,7 @@ const DEFAULT_APP_STORE = {
   setBiometricAvailable: jest.fn(),
   clearCache: jest.fn(),
   triggerSchemaUpdateCheck: jest.fn().mockResolvedValue(true),
-  theme: 'system',
+  theme: 'light',
   setTheme: jest.fn(),
   isLockEnabled: false,
   setLockEnabled: jest.fn(),
@@ -232,171 +195,6 @@ function setupMocks(
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('SettingsScreen — App Lock section', () => {
-  const { keychainService } = require('@/services/storage'); // eslint-disable-line @typescript-eslint/no-require-imports
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('renders the App Lock card when biometric is available', () => {
-    setupMocks({ isBiometricAvailable: true });
-    const { getByTestId } = render(<SettingsScreen />);
-    getByTestId('app-lock-card');
-  });
-
-  it('shows the toggle when biometric is available', () => {
-    setupMocks({ isBiometricAvailable: true });
-    const { getByTestId } = render(<SettingsScreen />);
-    getByTestId('app-lock-toggle');
-  });
-
-  it('toggle reflects isLockEnabled=false from store', () => {
-    setupMocks({ isBiometricAvailable: true, isLockEnabled: false });
-    const { getByTestId } = render(<SettingsScreen />);
-    const toggle = getByTestId('app-lock-toggle');
-    // value is false → accessibilityState.checked is false
-    expect(toggle.props.accessibilityState.checked).toBe(false);
-  });
-
-  it('toggle reflects isLockEnabled=true from store', () => {
-    setupMocks({ isBiometricAvailable: true, isLockEnabled: true });
-    const { getByTestId } = render(<SettingsScreen />);
-    const toggle = getByTestId('app-lock-toggle');
-    expect(toggle.props.accessibilityState.checked).toBe(true);
-  });
-
-  it('calls setLockEnabled(true) directly when enabling lock (no auth needed)', async () => {
-    const setLockEnabled = jest.fn();
-    setupMocks({ isBiometricAvailable: true, isLockEnabled: false, setLockEnabled });
-    const { getByTestId } = render(<SettingsScreen />);
-    const toggle = getByTestId('app-lock-toggle');
-
-    await act(async () => {
-      fireEvent.press(toggle);
-    });
-
-    expect(setLockEnabled).toHaveBeenCalledWith(true);
-  });
-
-  it('triggers biometric auth when disabling lock', async () => {
-    keychainService.authenticateWithBiometric.mockResolvedValue(true);
-
-    const setLockEnabled = jest.fn();
-    setupMocks({ isBiometricAvailable: true, isLockEnabled: true, setLockEnabled });
-    const { getByTestId } = render(<SettingsScreen />);
-    const toggle = getByTestId('app-lock-toggle');
-
-    await act(async () => {
-      fireEvent.press(toggle);
-    });
-
-    expect(keychainService.authenticateWithBiometric).toHaveBeenCalledWith(
-      'borderly_lock_check',
-      expect.objectContaining({
-        title: 'Confirm Disable App Lock',
-      }),
-    );
-    expect(setLockEnabled).toHaveBeenCalledWith(false);
-  });
-
-  it('does NOT disable lock if biometric auth fails', async () => {
-    keychainService.authenticateWithBiometric.mockResolvedValue(false);
-
-    const setLockEnabled = jest.fn();
-    setupMocks({ isBiometricAvailable: true, isLockEnabled: true, setLockEnabled });
-    const { getByTestId } = render(<SettingsScreen />);
-    const toggle = getByTestId('app-lock-toggle');
-
-    await act(async () => {
-      fireEvent.press(toggle);
-    });
-
-    // When auth returns false, Alert fallback is shown instead of directly disabling
-    expect(setLockEnabled).not.toHaveBeenCalledWith(false);
-  });
-
-  it('shows Alert confirmation when biometric auth returns false', async () => {
-    keychainService.authenticateWithBiometric.mockResolvedValue(false);
-
-    const alertSpy = jest.spyOn(Alert, 'alert');
-    const setLockEnabled = jest.fn();
-    setupMocks({ isBiometricAvailable: true, isLockEnabled: true, setLockEnabled });
-    const { getByTestId } = render(<SettingsScreen />);
-    const toggle = getByTestId('app-lock-toggle');
-
-    await act(async () => {
-      fireEvent.press(toggle);
-    });
-
-    expect(alertSpy).toHaveBeenCalledWith(
-      'Disable App Lock',
-      expect.any(String),
-      expect.arrayContaining([
-        expect.objectContaining({ text: 'Cancel' }),
-        expect.objectContaining({ text: 'Disable' }),
-      ]),
-    );
-  });
-
-  it('shows timeout select when lock is enabled', () => {
-    setupMocks({ isBiometricAvailable: true, isLockEnabled: true, lockTimeoutMinutes: 5 });
-    const { getByTestId } = render(<SettingsScreen />);
-    getByTestId('app-lock-timeout-section');
-    getByTestId('app-lock-timeout-select');
-  });
-
-  it('hides timeout select when lock is disabled', () => {
-    setupMocks({ isBiometricAvailable: true, isLockEnabled: false });
-    const { queryByTestId } = render(<SettingsScreen />);
-    expect(queryByTestId('app-lock-timeout-section')).toBeNull();
-  });
-
-  it('displays all four timeout options', () => {
-    setupMocks({ isBiometricAvailable: true, isLockEnabled: true, lockTimeoutMinutes: 5 });
-    const { getByTestId } = render(<SettingsScreen />);
-    getByTestId('app-lock-timeout-select-option-1');
-    getByTestId('app-lock-timeout-select-option-5');
-    getByTestId('app-lock-timeout-select-option-15');
-    getByTestId('app-lock-timeout-select-option-30');
-  });
-
-  it('calls setLockTimeoutMinutes with selected minute value', async () => {
-    const setLockTimeoutMinutes = jest.fn();
-    setupMocks({
-      isBiometricAvailable: true,
-      isLockEnabled: true,
-      lockTimeoutMinutes: 5,
-      setLockTimeoutMinutes,
-    });
-    const { getByTestId } = render(<SettingsScreen />);
-
-    await act(async () => {
-      fireEvent.press(getByTestId('app-lock-timeout-select-option-15'));
-    });
-
-    expect(setLockTimeoutMinutes).toHaveBeenCalledWith(15);
-  });
-
-  it('shows current timeout value in select', () => {
-    setupMocks({ isBiometricAvailable: true, isLockEnabled: true, lockTimeoutMinutes: 30 });
-    const { getByTestId } = render(<SettingsScreen />);
-    const valueEl = getByTestId('app-lock-timeout-select-value');
-    expect(valueEl.props.children).toBe('30');
-  });
-
-  it('hides lock controls and shows unavailable message when biometric is not available', () => {
-    setupMocks({ isBiometricAvailable: false });
-    const { getByTestId, queryByTestId } = render(<SettingsScreen />);
-    getByTestId('app-lock-unavailable');
-    expect(queryByTestId('app-lock-toggle')).toBeNull();
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Rendering — all settings sections
-// ---------------------------------------------------------------------------
-
 describe('SettingsScreen — section rendering', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -414,23 +212,11 @@ describe('SettingsScreen — section rendering', () => {
     getByText('Biometric Authentication');
   });
 
-  it('renders Appearance & Language section', () => {
-    const { getByText } = render(<SettingsScreen />);
-    getByText('Appearance & Language');
+  it('renders Appearance section with theme selector', () => {
+    const { getByText, getByTestId } = render(<SettingsScreen />);
+    getByText('Appearance');
     getByText('Theme');
-  });
-
-  it('renders Analytics & Diagnostics section', () => {
-    const { getByText } = render(<SettingsScreen />);
-    getByText('Analytics & Diagnostics');
-    getByText('Anonymous Analytics');
-    getByText('Crash Reporting');
-  });
-
-  it('renders Form Data section', () => {
-    const { getByTestId, getByText } = render(<SettingsScreen />);
-    getByTestId('form-data-card');
-    getByText('Form Data');
+    getByTestId('theme-selector');
   });
 
   it('renders App Information section with version', () => {
@@ -439,16 +225,9 @@ describe('SettingsScreen — section rendering', () => {
     getByText('1.0.0 (MVP)');
   });
 
-  it('renders supported countries in App Information', () => {
+  it('renders supported countries', () => {
     const { getByText } = render(<SettingsScreen />);
     getByText('Japan • Malaysia • Singapore');
-  });
-
-  it('renders Quick Actions section', () => {
-    const { getByText } = render(<SettingsScreen />);
-    getByText('Quick Actions');
-    getByText('Refresh');
-    getByText('Reset');
   });
 
   it('renders Help & Support section', () => {
@@ -459,38 +238,35 @@ describe('SettingsScreen — section rendering', () => {
     getByText('Privacy Policy');
   });
 
+  it('renders Danger Zone with Delete All Data', () => {
+    const { getByText } = render(<SettingsScreen />);
+    getByText('Danger Zone');
+    getByText('Delete All Data');
+  });
+
   it('renders Notification Preferences row', () => {
     const { getByTestId, getByText } = render(<SettingsScreen />);
     getByTestId('notification-preferences-row');
     getByText('Notification Preferences');
-    getByText('Deadline reminders, timing, quiet hours');
   });
 
   it('renders Local-First Privacy info', () => {
     const { getByText } = render(<SettingsScreen />);
     getByText('Local-First Privacy');
-    getByText('Your data never leaves this device unless you explicitly share it.');
+  });
+
+  it('does NOT render removed sections', () => {
+    const { queryByText } = render(<SettingsScreen />);
+    expect(queryByText('App Lock')).toBeNull();
+    expect(queryByText('Form Data')).toBeNull();
+    expect(queryByText('Quick Actions')).toBeNull();
+    expect(queryByText('Analytics & Diagnostics')).toBeNull();
+    expect(queryByText('Data Management')).toBeNull();
   });
 });
 
 // ---------------------------------------------------------------------------
-// Theme
-// ---------------------------------------------------------------------------
-
-describe('SettingsScreen — theme', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    setupMocks();
-  });
-
-  it('renders ThemeSelector component', () => {
-    const { getByTestId } = render(<SettingsScreen />);
-    getByTestId('theme-selector');
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Biometric security badge
+// Security badge
 // ---------------------------------------------------------------------------
 
 describe('SettingsScreen — security badge', () => {
@@ -509,16 +285,10 @@ describe('SettingsScreen — security badge', () => {
     const { getByText } = render(<SettingsScreen />);
     getByText('Basic');
   });
-
-  it('shows "Enhanced Security Active" message when biometric enabled', () => {
-    setupMocks({ preferences: { ...DEFAULT_APP_STORE.preferences, biometricEnabled: true } });
-    const { getByText } = render(<SettingsScreen />);
-    getByText(/Enhanced Security Active/);
-  });
 });
 
 // ---------------------------------------------------------------------------
-// Navigation interactions
+// Navigation
 // ---------------------------------------------------------------------------
 
 describe('SettingsScreen — navigation', () => {
@@ -533,48 +303,15 @@ describe('SettingsScreen — navigation', () => {
     expect(mockNavigate).toHaveBeenCalledWith('NotificationPreferences');
   });
 
-  it('Help & FAQ button navigates to Help', () => {
+  it('Help & FAQ navigates to Help', () => {
     const { getByText } = render(<SettingsScreen />);
     fireEvent.press(getByText('Help & FAQ'));
     expect(mockNavigate).toHaveBeenCalledWith('Help');
   });
 
-  it('Privacy Policy button navigates to PrivacyPolicy', () => {
+  it('Privacy Policy navigates to PrivacyPolicy', () => {
     const { getByText } = render(<SettingsScreen />);
     fireEvent.press(getByText('Privacy Policy'));
     expect(mockNavigate).toHaveBeenCalledWith('PrivacyPolicy');
-  });
-
-  it('Send Feedback button navigates to Feedback', () => {
-    const { getByText } = render(<SettingsScreen />);
-    fireEvent.press(getByText('Send Feedback'));
-    expect(mockNavigate).toHaveBeenCalledWith('Feedback');
-  });
-
-  it('Report Bug button navigates to BugReport', () => {
-    const { getByText } = render(<SettingsScreen />);
-    fireEvent.press(getByText('Report Bug'));
-    expect(mockNavigate).toHaveBeenCalledWith('BugReport');
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Form Data / Schema refresh
-// ---------------------------------------------------------------------------
-
-describe('SettingsScreen — form data', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    setupMocks();
-  });
-
-  it('shows "No schema data available yet" when no schemas exist', () => {
-    const { getByText } = render(<SettingsScreen />);
-    getByText('No schema data available yet.');
-  });
-
-  it('renders refresh schemas button', () => {
-    const { getByTestId } = render(<SettingsScreen />);
-    getByTestId('refresh-schemas-button');
   });
 });

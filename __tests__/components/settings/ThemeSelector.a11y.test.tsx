@@ -2,8 +2,8 @@
  * Accessibility tests for the ThemeSelector component.
  *
  * Verifies that the segmented control exposes correct accessibility roles,
- * labels, and state to screen readers (VoiceOver / TalkBack) for all three
- * theme options (System, Light, Dark).
+ * labels, and state to screen readers (VoiceOver / TalkBack) for the
+ * two theme options (Light, Dark).
  */
 
 import { render, screen, fireEvent } from '@testing-library/react-native';
@@ -30,18 +30,18 @@ function renderSelector(value: ThemePreference, onValueChange = jest.fn()) {
 
 describe('ThemeSelector — container', () => {
   it('renders the root container with testID', () => {
-    renderSelector('system');
+    renderSelector('light');
     screen.getByTestId('theme-selector');
   });
 
   it('applies radiogroup accessibilityRole to the container', () => {
-    renderSelector('system');
+    renderSelector('light');
     const container = screen.getByTestId('theme-selector');
     expect(container.props.accessibilityRole).toBe('radiogroup');
   });
 
   it('labels the container as "Theme preference"', () => {
-    renderSelector('system');
+    renderSelector('light');
     const container = screen.getByTestId('theme-selector');
     expect(container.props.accessibilityLabel).toBe('Theme preference');
   });
@@ -52,16 +52,15 @@ describe('ThemeSelector — container', () => {
 // ---------------------------------------------------------------------------
 
 describe('ThemeSelector — option buttons render', () => {
-  it('renders all three option buttons', () => {
-    renderSelector('system');
-    screen.getByTestId('theme-selector-option-system');
+  it('renders both option buttons', () => {
+    renderSelector('light');
     screen.getByTestId('theme-selector-option-light');
     screen.getByTestId('theme-selector-option-dark');
   });
 
   it('each option has accessibilityRole="button"', () => {
-    renderSelector('system');
-    const ids = ['system', 'light', 'dark'] as const;
+    renderSelector('light');
+    const ids = ['light', 'dark'] as const;
     ids.forEach(id => {
       const btn = screen.getByTestId(`theme-selector-option-${id}`);
       expect(btn.props.accessibilityRole).toBe('button');
@@ -74,12 +73,6 @@ describe('ThemeSelector — option buttons render', () => {
 // ---------------------------------------------------------------------------
 
 describe('ThemeSelector — accessibilityLabel', () => {
-  it('System button has descriptive accessibilityLabel', () => {
-    renderSelector('system');
-    const btn = screen.getByTestId('theme-selector-option-system');
-    expect(btn.props.accessibilityLabel).toBe('Use system default theme');
-  });
-
   it('Light button has descriptive accessibilityLabel', () => {
     renderSelector('light');
     const btn = screen.getByTestId('theme-selector-option-light');
@@ -98,7 +91,7 @@ describe('ThemeSelector — accessibilityLabel', () => {
 // ---------------------------------------------------------------------------
 
 describe('ThemeSelector — accessibilityState.selected', () => {
-  const themes: ThemePreference[] = ['system', 'light', 'dark'];
+  const themes: ThemePreference[] = ['light', 'dark'];
 
   it.each(themes)('sets selected state correctly when value is "%s"', (value) => {
     renderSelector(value);
@@ -117,23 +110,16 @@ describe('ThemeSelector — accessibilityState.selected', () => {
 describe('ThemeSelector — interaction', () => {
   it('calls onValueChange with "light" when Light is pressed', () => {
     const onValueChange = jest.fn();
-    renderSelector('system', onValueChange);
+    renderSelector('dark', onValueChange);
     fireEvent.press(screen.getByTestId('theme-selector-option-light'));
     expect(onValueChange).toHaveBeenCalledWith('light');
   });
 
   it('calls onValueChange with "dark" when Dark is pressed', () => {
     const onValueChange = jest.fn();
-    renderSelector('system', onValueChange);
+    renderSelector('light', onValueChange);
     fireEvent.press(screen.getByTestId('theme-selector-option-dark'));
     expect(onValueChange).toHaveBeenCalledWith('dark');
-  });
-
-  it('calls onValueChange with "system" when System is pressed', () => {
-    const onValueChange = jest.fn();
-    renderSelector('light', onValueChange);
-    fireEvent.press(screen.getByTestId('theme-selector-option-system'));
-    expect(onValueChange).toHaveBeenCalledWith('system');
   });
 });
 
@@ -142,10 +128,14 @@ describe('ThemeSelector — interaction', () => {
 // ---------------------------------------------------------------------------
 
 describe('ThemeSelector — visible text labels', () => {
-  it('shows "System", "Light", and "Dark" labels', () => {
-    renderSelector('system');
-    screen.getByText('System');
+  it('shows "Light" and "Dark" labels', () => {
+    renderSelector('light');
     screen.getByText('Light');
     screen.getByText('Dark');
+  });
+
+  it('does not show "System" option', () => {
+    renderSelector('light');
+    expect(screen.queryByText('System')).toBeNull();
   });
 });

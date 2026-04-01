@@ -36,11 +36,6 @@ interface ThemeOption {
 
 const THEME_OPTIONS: ThemeOption[] = [
   {
-    label: 'System',
-    value: 'system',
-    accessibilityLabel: 'Use system default theme',
-  },
-  {
     label: 'Light',
     value: 'light',
     accessibilityLabel: 'Use light theme',
