@@ -53,6 +53,9 @@ jest.mock('react-native', () => {
       ApplePlacesModule: {
         search: jest.fn().mockResolvedValue([]),
       },
+      ImageBarcodeScanner: {
+        scanBarcodesInImage: jest.fn().mockResolvedValue([]),
+      },
     },
     View: mockComponent('View'),
     Text: mockComponent('Text'),
@@ -591,11 +594,6 @@ jest.mock('react-native-svg', () => {
     SvgUri: mockSvgComponent('SvgUri'),
   };
 });
-
-// Mock @react-native-ml-kit/barcode-scanning
-jest.mock('@react-native-ml-kit/barcode-scanning', () => ({
-  scan: jest.fn().mockResolvedValue([]),
-}));
 
 // Mock lucide-react-native
 jest.mock('lucide-react-native', () => {

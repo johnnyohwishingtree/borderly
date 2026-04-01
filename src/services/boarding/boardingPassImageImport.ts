@@ -160,12 +160,22 @@ async function selectImageFromLibrary(): Promise<{
 }
 
 /**
- * Detect barcode in static image using ML Kit barcode scanning.
+ * Detect barcode in static image using iOS Vision framework
+ * via the ImageBarcodeScanner native module.
  */
 async function detectBarcodeInImage(imageUri: string): Promise<BarcodeDetectionResult> {
   try {
-    const BarcodeScanning = require('@react-native-ml-kit/barcode-scanning');
-    const results = await BarcodeScanning.scan(imageUri);
+    const { NativeModules } = require('react-native');
+    const { ImageBarcodeScanner } = NativeModules;
+
+    if (!ImageBarcodeScanner) {
+      return {
+        success: false,
+        error: 'Barcode scanning not available on this platform.',
+      };
+    }
+
+    const results = await ImageBarcodeScanner.scanBarcodesInImage(imageUri);
 
     if (!results || results.length === 0) {
       return {

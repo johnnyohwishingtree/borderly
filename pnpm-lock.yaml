@@ -34,9 +34,6 @@ importers:
       '@react-native-clipboard/clipboard':
         specifier: ^1.16.3
         version: 1.16.3(react-native@0.84.1(@babel/core@7.29.0)(@react-native-community/cli@20.1.2(typescript@5.9.3))(@react-native/metro-config@0.84.1(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)
-      '@react-native-ml-kit/barcode-scanning':
-        specifier: ^2.0.0
-        version: 2.0.0(react-native@0.84.1(@babel/core@7.29.0)(@react-native-community/cli@20.1.2(typescript@5.9.3))(@react-native/metro-config@0.84.1(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)
       '@react-navigation/bottom-tabs':
         specifier: 7.15.5
         version: 7.15.5(@react-navigation/native@7.1.33(react-native@0.84.1(@babel/core@7.29.0)(@react-native-community/cli@20.1.2(typescript@5.9.3))(@react-native/metro-config@0.84.1(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3))(react-native-safe-area-context@5.7.0(react-native@0.84.1(@babel/core@7.29.0)(@react-native-community/cli@20.1.2(typescript@5.9.3))(@react-native/metro-config@0.84.1(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3))(react-native-screens@4.24.0(patch_hash=060a70681c6df7533ef95904ec01cd5e4e7febcbf08a1cc187cc2008975e98dd)(react-native@0.84.1(@babel/core@7.29.0)(@react-native-community/cli@20.1.2(typescript@5.9.3))(@react-native/metro-config@0.84.1(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3))(react-native@0.84.1(@babel/core@7.29.0)(@react-native-community/cli@20.1.2(typescript@5.9.3))(@react-native/metro-config@0.84.1(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)
@@ -1556,12 +1553,6 @@ packages:
     resolution: {integrity: sha512-48GRnGfm1+4ueV8ESNJmKAKW01QdbB8H6qrVxCqpHYvuRkeFBaPpwRY2bEjSwqruw3Pn9ppzGfpAxYQDiUWQxQ==}
     engines: {node: '>=20.19.4'}
     hasBin: true
-
-  '@react-native-ml-kit/barcode-scanning@2.0.0':
-    resolution: {integrity: sha512-gCbxV6k/2IOYEw+GnMPbFWvURq0BDJYn6K4lOf5+gqr6L8bwH7CEMxnK8NA8J6aeNKDUh8OKDtZC0kL1gc9OWA==}
-    peerDependencies:
-      react: '>=16.8.1'
-      react-native: '>=0.60.0-rc.0 <1.0.x'
 
   '@react-native/assets-registry@0.73.1':
     resolution: {integrity: sha512-2FgAbU7uKM5SbbW9QptPPZx8N9Ke2L7bsHb+EhAanZjFZunA9PaYtyjUQ1s7HD+zDVqOQIvjkpXSv7Kejd2tqg==}
@@ -9301,11 +9292,6 @@ snapshots:
       - supports-color
       - typescript
       - utf-8-validate
-
-  '@react-native-ml-kit/barcode-scanning@2.0.0(react-native@0.84.1(@babel/core@7.29.0)(@react-native-community/cli@20.1.2(typescript@5.9.3))(@react-native/metro-config@0.84.1(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      react: 19.2.3
-      react-native: 0.84.1(@babel/core@7.29.0)(@react-native-community/cli@20.1.2(typescript@5.9.3))(@react-native/metro-config@0.84.1(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3)
 
   '@react-native/assets-registry@0.73.1': {}
 
