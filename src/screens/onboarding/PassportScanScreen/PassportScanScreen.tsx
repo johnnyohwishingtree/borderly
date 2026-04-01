@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView, Alert, NativeModules } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { Camera, Pencil } from 'lucide-react-native';
 import { useTheme } from '@/utils/theme';
@@ -9,6 +9,7 @@ import { MRZScanner, PassportPreview } from '@/components/passport';
 import { ContextualHelp, HelpContent } from '@/components/help';
 import { usePassportScan } from '@/hooks/usePassportScan';
 import { selectImageFromLibrary } from '@/services/imagePickerService';
+import { parseMRZ } from '@/services/passport/mrzScanner/mrzParser';
 import { PASSPORT_SCAN_IDS } from './testIDs';
 import { getTodayISO } from '@/utils/dateUtils';
 
@@ -137,10 +138,39 @@ export default function PassportScanScreen() {
                         text: 'Import from Photo',
                         onPress: async () => {
                           const result = await selectImageFromLibrary();
-                          if (result.success && result.imageUri) {
-                            // TODO: Process MRZ from image via native text recognition
-                            // For now, open manual entry after picking the photo
-                            Alert.alert('Photo Selected', 'MRZ text recognition from photos is coming soon. Please enter details manually for now.');
+                          if (!result.success || !result.imageUri) return;
+
+                          try {
+                            const { ImageBarcodeScanner } = NativeModules;
+                            if (!ImageBarcodeScanner) {
+                              Alert.alert('Error', 'Barcode scanning not available.');
+                              scan.handleManualEntry();
+                              return;
+                            }
+
+                            const barcodes = await ImageBarcodeScanner.scanBarcodesInImage(result.imageUri);
+                            if (!barcodes || barcodes.length === 0) {
+                              Alert.alert('No Data Found', 'Could not read passport data from this photo. Please try a clearer image or enter manually.');
+                              scan.handleManualEntry();
+                              return;
+                            }
+
+                            // QR payload may contain MRZ lines separated by newline
+                            const payload = barcodes[0].value;
+                            const lines = payload.split('\n').filter((l: string) => l.length >= 30);
+
+                            if (lines.length >= 2) {
+                              const mrzResult = parseMRZ(lines[0], lines[1]);
+                              if (mrzResult && !('error' in mrzResult)) {
+                                scan.handleSuccess(mrzResult);
+                                return;
+                              }
+                            }
+
+                            Alert.alert('Could Not Parse', 'The photo was read but passport data could not be extracted. Please enter manually.');
+                            scan.handleManualEntry();
+                          } catch (err) {
+                            Alert.alert('Import Failed', err instanceof Error ? err.message : 'Unknown error');
                             scan.handleManualEntry();
                           }
                         },
