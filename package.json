@@ -23,7 +23,7 @@
     "pages:build": "npx webpack --config webpack.config.js --mode production --env pages",
     "vercel:build": "npx webpack --config webpack.config.js --mode production --env vercel",
     "portal:validate": "npx playwright test --config e2e/portal-validation/playwright.config.ts",
-    "sim:photos": "find e2e/fixtures/photos -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' | xargs -r xcrun simctl addmedia booted; echo 'Photos added to simulator'",
+    "sim:photos": "find e2e/fixtures/photos \\( -name '*.png' -o -name '*.jpg' \\) -print0 | xargs -0 xcrun simctl addmedia booted; echo 'Photos added to simulator'",
     "generate:test-photos": "node scripts/generate-test-photos.js"
   },
   "dependencies": {

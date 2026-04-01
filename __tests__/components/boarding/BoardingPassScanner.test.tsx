@@ -80,19 +80,22 @@ describe('BoardingPassScanner — action sheet', () => {
     });
   });
 
-  it('shows unavailable screen when camera fails after selecting Camera Scan', async () => {
+  it('bounces back to action sheet when camera is unavailable', async () => {
     autoFireCameraReady = false;
     jest.useFakeTimers();
-    const { getByText } = render(<BoardingPassScanner {...mockProps} />);
+    const { getByText, queryByText } = render(<BoardingPassScanner {...mockProps} />);
 
     fireEvent.press(getByText('Camera Scan'));
 
     act(() => { jest.advanceTimersByTime(10000); });
 
+    // Should bounce back to action sheet (no Camera option since it failed)
     await waitFor(() => {
-      getByText('Camera Not Available');
+      getByText('Import from Photo');
+      getByText('Enter Manually');
     });
-    getByText('Import from Photo');
+    // Camera Scan should be hidden since camera is unavailable
+    expect(queryByText('Camera Scan')).toBeNull();
     jest.useRealTimers();
   });
 

@@ -4,19 +4,20 @@
  * Shows an action sheet (Camera / Import from Photo / Cancel) first,
  * then opens the camera or photo picker.
  *
+ * On simulator (no camera), Camera option is hidden automatically.
+ * On import failure, shows error inline with Enter Manually option.
+ *
  * Security: No image storage - immediate processing only.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
-  Linking,
-  Platform,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
-import { Lightbulb, Flashlight, Check } from 'lucide-react-native';
+import { Lightbulb, Flashlight, Check, AlertCircle } from 'lucide-react-native';
 import Button from '../ui/Button';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import { useBoardingPassScanner } from '../../hooks/useBoardingPassScanner';
@@ -35,6 +36,7 @@ export default function BoardingPassScanner({
   lowPowerMode = false,
 }: BoardingPassScannerProps) {
   const [scanMode, setScanMode] = useState<ScanMode>('choose');
+  const [importError, setImportError] = useState<string | null>(null);
 
   const { scanner, camera, import_, ui } = useBoardingPassScanner({
     onScanSuccess,
@@ -42,6 +44,30 @@ export default function BoardingPassScanner({
     ...(onImageImport != null && { onImageImport }),
     lowPowerMode,
   });
+
+  // If user picks Camera but it's unavailable, bounce back to choose
+  useEffect(() => {
+    if (scanMode === 'camera' && (camera.status === 'unavailable' || camera.status === 'denied')) {
+      setScanMode('choose');
+    }
+  }, [scanMode, camera.status]);
+
+  // Wrap import to capture errors inline
+  const handleImport = async () => {
+    setImportError(null);
+    try {
+      await import_.handleImageImport();
+    } catch {
+      // Error is handled by the hook, but if we get here show generic
+    }
+    // Check if scanner result has an error after import
+    if (scanner.result?.type === 'error') {
+      setImportError(scanner.result.error || 'Failed to read barcode from photo');
+    }
+  };
+
+  // Camera not available — hide camera option
+  const cameraAvailable = camera.status !== 'unavailable' && camera.status !== 'denied';
 
   // Action sheet — choose how to scan
   if (scanMode === 'choose') {
@@ -54,91 +80,37 @@ export default function BoardingPassScanner({
           Scan your boarding pass barcode to auto-fill flight details
         </Text>
 
+        {/* Error from failed import */}
+        {importError && (
+          <View className="w-full mb-4 p-3 bg-red-900/40 rounded-xl flex-row items-center">
+            <AlertCircle size={18} color="#f87171" />
+            <Text className="text-red-300 text-sm ml-2 flex-1">{importError}</Text>
+          </View>
+        )}
+
         <View className="w-full space-y-3">
-          <Button
-            title="Camera Scan"
-            onPress={() => setScanMode('camera')}
-            variant="primary"
-            fullWidth
-          />
+          {cameraAvailable && (
+            <Button
+              title="Camera Scan"
+              onPress={() => setScanMode('camera')}
+              variant="primary"
+              fullWidth
+            />
+          )}
           <Button
             title="Import from Photo"
-            onPress={import_.handleImageImport}
-            variant="secondary"
+            onPress={handleImport}
+            variant={cameraAvailable ? 'secondary' : 'primary'}
             fullWidth
             disabled={import_.isImporting}
             loading={import_.isImporting}
           />
           <Button
-            title="Cancel"
-            onPress={onScanCancel}
+            title="Enter Manually"
+            onPress={onManualEntry}
             variant="secondary"
             fullWidth
           />
-        </View>
-      </View>
-    );
-  }
-
-  // Permission denied
-  if (scanMode === 'camera' && camera.status === 'denied') {
-    return (
-      <View className="flex-1 bg-black items-center justify-center px-6">
-        <Text className="text-white text-xl font-bold mb-4 text-center">
-          Camera Access Required
-        </Text>
-        <Text className="text-muted text-center mb-8 leading-6">
-          To scan your boarding pass, we need camera permission.
-        </Text>
-        {Platform.OS !== 'web' && (
-          <Button
-            title="Open Settings"
-            onPress={() => Linking.openSettings()}
-            variant="primary"
-            fullWidth
-          />
-        )}
-        <View className="mt-4 w-full">
-          <Button
-            title="Import from Photo Instead"
-            onPress={import_.handleImageImport}
-            variant="secondary"
-            fullWidth
-            disabled={import_.isImporting}
-            loading={import_.isImporting}
-          />
-        </View>
-        <View className="mt-4 w-full">
-          <Button
-            title="Cancel"
-            onPress={onScanCancel}
-            variant="secondary"
-            fullWidth
-          />
-        </View>
-      </View>
-    );
-  }
-
-  // Camera unavailable (simulator)
-  if (scanMode === 'camera' && camera.status === 'unavailable') {
-    return (
-      <View className="flex-1 bg-black items-center justify-center px-6">
-        <Text className="text-white text-xl font-bold mb-4 text-center">
-          Camera Not Available
-        </Text>
-        <Text className="text-muted text-center mb-8 leading-6">
-          Camera could not be started. You can import a photo of your boarding pass instead.
-        </Text>
-        <Button
-          title="Import from Photo"
-          onPress={import_.handleImageImport}
-          variant="primary"
-          disabled={import_.isImporting}
-          loading={import_.isImporting}
-          fullWidth
-        />
-        <View className="mt-4 w-full">
           <Button
             title="Cancel"
             onPress={onScanCancel}
