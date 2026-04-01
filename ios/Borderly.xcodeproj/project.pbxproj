@@ -16,6 +16,7 @@
 		1C4F873D095F94DB8D7B0FBB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		1D6446A4FA8FB5C0BD164221 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E4E2C17F2D0528420E78A6E /* AuthenticationServices.framework */; };
 		301C3A5E6AF341486419EA33 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D96B74534A64715125C153C /* Foundation.framework */; };
+		7723C77FF0ECB0ED2B792EC6 /* ImageBarcodeScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 1C5853AF18A5459FE2C72B83 /* ImageBarcodeScanner.m */; };
 		78A5452D0AE8024F8EDBC314 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09A2DC0977895418A8A9FE88 /* Security.framework */; };
 		7ED0FA2DF8105EC628FE573E /* libPods-Borderly.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 75961698FA278F6B6F5CBD37 /* libPods-Borderly.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
@@ -67,6 +68,7 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Borderly/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Borderly/main.m; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = Borderly/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		1C5853AF18A5459FE2C72B83 /* ImageBarcodeScanner.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = ImageBarcodeScanner.m; sourceTree = "<group>"; };
 		214731F3205D5E0974F877D0 /* Pods-Borderly.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Borderly.debug.xcconfig"; path = "Target Support Files/Pods-Borderly/Pods-Borderly.debug.xcconfig"; sourceTree = "<group>"; };
 		2AC33904D1172F95ABCA981D /* ApplePlacesModule.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ApplePlacesModule.swift; path = Borderly/ApplePlacesModule.swift; sourceTree = "<group>"; };
 		386A2DCCE22CDA0E6496286B /* ApplePlacesModule.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = ApplePlacesModule.m; path = Borderly/ApplePlacesModule.m; sourceTree = "<group>"; };
@@ -144,6 +146,7 @@
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
 				2AC33904D1172F95ABCA981D /* ApplePlacesModule.swift */,
 				386A2DCCE22CDA0E6496286B /* ApplePlacesModule.m */,
+				1C5853AF18A5459FE2C72B83 /* ImageBarcodeScanner.m */,
 			);
 			name = Borderly;
 			sourceTree = "<group>";
@@ -500,6 +503,7 @@
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				1BBC473A077B620B59EAB5E7 /* ApplePlacesModule.swift in Sources */,
 				8FC36D05EAC6847A2C012F95 /* ApplePlacesModule.m in Sources */,
+				7723C77FF0ECB0ED2B792EC6 /* ImageBarcodeScanner.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
