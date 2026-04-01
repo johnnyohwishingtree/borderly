@@ -250,18 +250,10 @@ describe('PassportScanScreen — method selection mode', () => {
     screen.getByText('Quick Passport Scan');
   });
 
-  it('renders "Start Camera Scan" button', () => {
+  it('renders "Scan Passport" button', () => {
     render(<PassportScanScreen />);
 
     screen.getByTestId('start-camera-scan-button');
-  });
-
-  it('pressing "Start Camera Scan" calls handleStartScanning', () => {
-    render(<PassportScanScreen />);
-
-    fireEvent.press(screen.getByTestId('start-camera-scan-button'));
-
-    expect(mockHandleStartScanning).toHaveBeenCalledTimes(1);
   });
 
   it('renders "Or enter manually" button', () => {

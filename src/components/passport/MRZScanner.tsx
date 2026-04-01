@@ -1,19 +1,15 @@
 /**
- * MRZ Scanner Component
+ * MRZ Scanner — Camera-only component.
  *
- * Shows an action sheet (Camera / Import from Photo / Cancel) first,
- * then opens the camera or photo picker.
- *
- * Security: No image storage - immediate processing only.
+ * Renders the camera viewfinder for scanning passport MRZ zones.
+ * The action sheet (Camera / Import / Manual) is handled by the
+ * parent screen to avoid Modal navigation context issues.
  */
 
-import { useState } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
-  Linking,
-  Platform,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { Lightbulb, Flashlight, Check } from 'lucide-react-native';
@@ -24,8 +20,6 @@ import type { MRZScannerProps } from './mrzScannerTypes';
 
 export type { MRZScannerProps } from './mrzScannerTypes';
 
-type ScanMode = 'choose' | 'camera';
-
 export default function MRZScannerComponent({
   onScanSuccess,
   onScanCancel,
@@ -33,8 +27,6 @@ export default function MRZScannerComponent({
   onScanError,
   lowPowerMode = false,
 }: MRZScannerProps) {
-  const [scanMode, setScanMode] = useState<ScanMode>('choose');
-
   const {
     state: { scanResult, cameraStatus, lowPowerMode: isLowPower },
     camera: { cameraRef, flashMode, handleCameraReady, handleStatusChange, handleMountError, toggleFlash },
@@ -46,119 +38,32 @@ export default function MRZScannerComponent({
     lowPowerMode,
   });
 
-  // Action sheet — choose how to scan
-  if (scanMode === 'choose') {
-    return (
-      <View className="flex-1 bg-black items-center justify-center px-6">
-        <Text className="text-white text-xl font-bold mb-2 text-center">
-          Scan Passport
-        </Text>
-        <Text className="text-muted text-center mb-8 leading-6">
-          Scan the MRZ zone at the bottom of your passport photo page
-        </Text>
-
-        <View className="w-full space-y-3">
-          <Button
-            title="Camera Scan"
-            onPress={() => setScanMode('camera')}
-            variant="primary"
-            fullWidth
-          />
-          <Button
-            title="Import from Photo"
-            onPress={onManualEntry}
-            variant="secondary"
-            fullWidth
-          />
-          <Button
-            title="Cancel"
-            onPress={onScanCancel}
-            variant="secondary"
-            fullWidth
-          />
-        </View>
-      </View>
-    );
-  }
-
-  // Permission denied
-  if (cameraStatus === 'denied') {
+  // Camera unavailable — tell user to use Import or Manual (handled by parent)
+  if (cameraStatus === 'unavailable' || cameraStatus === 'denied') {
     return (
       <View className="flex-1 bg-black items-center justify-center px-6">
         <Text className="text-white text-xl font-bold mb-4 text-center">
-          Camera Access Required
+          {cameraStatus === 'denied' ? 'Camera Access Required' : 'Camera Not Available'}
         </Text>
         <Text className="text-muted text-center mb-8 leading-6">
-          To scan your passport, we need camera permission.
+          Use "Import from Photo" or enter passport details manually.
         </Text>
-        {Platform.OS !== 'web' && (
-          <Button
-            title="Open Settings"
-            onPress={() => Linking.openSettings()}
-            variant="primary"
-            fullWidth
-          />
-        )}
+        <Button title="Enter Manually" onPress={onManualEntry} variant="primary" fullWidth />
         <View className="mt-4 w-full">
-          <Button
-            title="Enter Manually Instead"
-            onPress={onManualEntry}
-            variant="secondary"
-            fullWidth
-          />
-        </View>
-        <View className="mt-4 w-full">
-          <Button
-            title="Cancel"
-            onPress={onScanCancel}
-            variant="secondary"
-            fullWidth
-          />
+          <Button title="Cancel" onPress={onScanCancel} variant="secondary" fullWidth />
         </View>
       </View>
     );
   }
 
-  // Camera unavailable
-  if (cameraStatus === 'unavailable') {
-    return (
-      <View className="flex-1 bg-black items-center justify-center px-6">
-        <Text className="text-white text-xl font-bold mb-4 text-center">
-          Camera Not Available
-        </Text>
-        <Text className="text-muted text-center mb-8 leading-6">
-          Camera could not be started. Please enter your passport information manually.
-        </Text>
-        <Button
-          title="Enter Manually"
-          onPress={onManualEntry}
-          variant="primary"
-          fullWidth
-        />
-        <View className="mt-4 w-full">
-          <Button
-            title="Cancel"
-            onPress={onScanCancel}
-            variant="secondary"
-            fullWidth
-          />
-        </View>
-      </View>
-    );
-  }
-
-  // Camera scanning mode
+  // Camera scanning
   return (
     <View className="flex-1 bg-black">
       <RNCamera
         ref={cameraRef}
         className="flex-1"
         type={RNCamera.Constants.Type.back}
-        flashMode={
-          flashMode === 'on'
-            ? RNCamera.Constants.FlashMode.torch
-            : RNCamera.Constants.FlashMode.off
-        }
+        flashMode={flashMode === 'on' ? RNCamera.Constants.FlashMode.torch : RNCamera.Constants.FlashMode.off}
         onTextRecognized={handleTextRecognition}
         captureAudio={false}
         onCameraReady={handleCameraReady}
@@ -177,7 +82,6 @@ export default function MRZScannerComponent({
             </Text>
           </View>
 
-          {/* MRZ target frame */}
           <View className="mx-8 my-4 relative">
             <View
               className={`border-2 ${
@@ -207,7 +111,6 @@ export default function MRZScannerComponent({
             )}
           </View>
 
-          {/* Bottom controls */}
           <View className="flex-1 bg-black/60 flex-col justify-start">
             <View className="px-6 py-4">
               <Text className={`text-center text-sm font-medium ${getGuidanceColor(scanResult)}`}>

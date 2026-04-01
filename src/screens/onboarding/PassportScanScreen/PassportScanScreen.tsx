@@ -1,4 +1,4 @@
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Alert } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { Camera, Pencil } from 'lucide-react-native';
 import { useTheme } from '@/utils/theme';
@@ -125,8 +125,18 @@ export default function PassportScanScreen() {
                 Point your camera at the bottom of your passport photo page
               </Text>
               <Button
-                title="Start Camera Scan"
-                onPress={scan.handleStart}
+                title="Scan Passport"
+                onPress={() => {
+                  Alert.alert(
+                    'Scan Passport',
+                    'How would you like to scan?',
+                    [
+                      { text: 'Camera Scan', onPress: scan.handleStart },
+                      { text: 'Import from Photo', onPress: scan.handleManualEntry },
+                      { text: 'Cancel', style: 'cancel' },
+                    ],
+                  );
+                }}
                 variant="primary"
                 size="large"
                 testID={PASSPORT_SCAN_IDS.startCameraScanButton.id}

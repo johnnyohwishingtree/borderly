@@ -188,7 +188,7 @@ describe('Onboarding Flow Integration Tests', () => {
       getByText('Passport Information');
       getByText(/All data is stored securely on your device/);
       getByText('Quick Passport Scan');
-      getByText('Start Camera Scan');
+      getByText('Scan Passport');
       getByText('Or enter manually');
     });
 
