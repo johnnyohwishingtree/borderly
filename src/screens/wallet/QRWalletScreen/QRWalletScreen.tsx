@@ -64,24 +64,9 @@ export default function QRWalletScreen() {
       <ScreenContainer className="bg-surface-secondary">
         {/* Header */}
         <View className="bg-surface px-4 py-6 border-b border-border-default">
-          <View className="flex-row items-center justify-between">
-            <View className="flex-1">
-              <Text className="text-base text-secondary">
-                Your saved entry codes
-              </Text>
-            </View>
-
-            <TouchableOpacity
-              onPress={handleAddQR}
-              className="bg-blue-600 dark:bg-blue-500 rounded-full items-center justify-center"
-              style={{ width: 44, height: 44 }}
-              accessible={true}
-              accessibilityRole="button"
-              accessibilityLabel="Add QR code"
-            >
-              <Text className="text-white text-xl font-bold">+</Text>
-            </TouchableOpacity>
-          </View>
+          <Text className="text-base text-secondary">
+            Your saved entry codes
+          </Text>
         </View>
 
         <ScrollView
