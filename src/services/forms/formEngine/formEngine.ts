@@ -260,6 +260,11 @@ function isValidFieldValue(value: unknown, fieldType: string): boolean {
     return false;
   }
 
+  // Never accept objects — prevents [object Object] display bugs
+  if (typeof value === 'object') {
+    return false;
+  }
+
   switch (fieldType) {
     case 'text':
     case 'textarea':

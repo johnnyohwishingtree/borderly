@@ -224,7 +224,11 @@ export default function FormField({
             <AccommodationAutocomplete
               value={String(fieldValue || '')}
               onNameChange={(name) => onValueChange(field.id, name)}
-              onAddressResolved={(address) => onValueChange(addressFieldId, address)}
+              onAddressResolved={(address) => {
+                const formatted = address.formattedAddress
+                  || [address.line1, address.city, address.state, address.postalCode].filter(Boolean).join(', ');
+                onValueChange(addressFieldId, formatted || '');
+              }}
               disabled={baseProps.disabled}
               testID={FORM_FIELD_IDS.accommodation(field.id).id}
               {...(hasError && error ? { error } : {})}
