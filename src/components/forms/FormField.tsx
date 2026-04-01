@@ -108,7 +108,7 @@ export default function FormField({
     const baseProps = {
       value: String(fieldValue || ''),
       placeholder: field.label,
-      disabled: disabled || (field.source === 'auto' && !field.needsUserInput),
+      disabled,
       testID: FORM_FIELD_IDS.input(field.id).id,
       ...(hasError && effectiveError ? { error: effectiveError } : {}),
     };
