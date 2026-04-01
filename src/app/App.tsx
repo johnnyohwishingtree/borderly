@@ -35,9 +35,13 @@ if (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
 }
 
 function AppContent(): React.JSX.Element {
+  const { isDark } = useTheme();
   return (
     <>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={isDark ? '#111827' : '#ffffff'}
+      />
       <RootNavigator />
     </>
   );

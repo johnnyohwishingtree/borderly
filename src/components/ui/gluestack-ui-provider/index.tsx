@@ -15,15 +15,12 @@ export function GluestackUIProvider({
   const systemColorScheme = useColorScheme();
   const colorMode = mode === 'system' ? systemColorScheme : mode;
 
+  const isDark = colorMode === 'dark';
+
   return (
     <View
-      style={[
-        {
-          flex: 1,
-          backgroundColor: colorMode === 'dark' ? '#000' : '#fff',
-        },
-        style,
-      ]}
+      className={isDark ? 'dark' : ''}
+      style={[{ flex: 1 }, style]}
       {...props}
     >
       {children}

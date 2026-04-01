@@ -20,25 +20,27 @@ const ROOT = resolve(__dirname, '../..');
  * Invalidate: NativeWind class-based dark mode doesn't work in RN
  */
 
-test.skip('App root applies dark class based on theme preference', () => {
-  // The root App or navigation container must read the theme preference
-  // and pass it to NativeWind's color scheme provider
+test('App root applies dark class based on theme preference', () => {
+  // App.tsx must use useTheme to read the preference
   const appContent = readFileSync(resolve(ROOT, 'src/app/App.tsx'), 'utf-8');
+  expect(appContent).toMatch(/useTheme|resolvedTheme/);
 
-  // Must use NativeWind's colorScheme or useColorScheme
-  expect(appContent).toMatch(/colorScheme|useColorScheme|DarkTheme|darkMode/i);
-  // Must read from preferences/store (not hardcoded)
-  expect(appContent).toMatch(/theme|darkMode|colorScheme.*store|preference/i);
+  // GluestackUIProvider must apply the 'dark' className for NativeWind
+  const providerContent = readFileSync(
+    resolve(ROOT, 'src/components/ui/gluestack-ui-provider/index.tsx'),
+    'utf-8',
+  );
+  expect(providerContent).toMatch(/className.*dark/);
 });
 
-test.skip('Settings theme toggle updates the color scheme', () => {
+test('Settings theme toggle updates the color scheme', () => {
   const settingsContent = readFileSync(resolve(ROOT, 'src/screens/settings/SettingsScreen/SettingsScreen.tsx'), 'utf-8');
 
   // Must have a theme/dark mode toggle
   expect(settingsContent).toMatch(/dark.*mode|theme.*toggle|color.*scheme|appearance/i);
 });
 
-test.skip('useTheme hook provides current theme and toggle function', () => {
+test('useTheme hook provides current theme and toggle function', () => {
   // A theme hook must exist that:
   // 1. Returns current theme ('light' | 'dark' | 'system')
   // 2. Provides a toggle/set function
