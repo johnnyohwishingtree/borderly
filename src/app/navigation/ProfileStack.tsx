@@ -29,7 +29,7 @@ export default function ProfileNavigator() {
         />
       )}
     >
-      <Stack.Navigator>
+      <Stack.Navigator screenOptions={{ headerBackButtonDisplayMode: 'minimal' }}>
         <Stack.Screen name="Profile" options={{ title: 'Profile' }}>
           {() => (<Suspense fallback={<ScreenLoader />}><ProfileScreen /></Suspense>)}
         </Stack.Screen>

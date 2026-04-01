@@ -32,7 +32,7 @@ export default function FormsNavigator() {
         />
       )}
     >
-      <Stack.Navigator>
+      <Stack.Navigator screenOptions={{ headerBackButtonDisplayMode: 'minimal' }}>
         <Stack.Screen name="SelectCountries" options={{ title: 'Where are you going?' }}>
           {() => (<Suspense fallback={<ScreenLoader />}><SelectCountriesScreen /></Suspense>)}
         </Stack.Screen>

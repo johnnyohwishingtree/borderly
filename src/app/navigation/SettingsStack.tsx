@@ -35,7 +35,7 @@ export default function SettingsNavigator() {
         />
       )}
     >
-      <Stack.Navigator>
+      <Stack.Navigator screenOptions={{ headerBackButtonDisplayMode: 'minimal' }}>
         <Stack.Screen name="Settings" options={{ title: 'Settings' }}>
           {() => (<Suspense fallback={<ScreenLoader />}><SettingsScreen /></Suspense>)}
         </Stack.Screen>

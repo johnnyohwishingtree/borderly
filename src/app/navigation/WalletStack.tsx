@@ -27,7 +27,7 @@ export default function WalletNavigator() {
         />
       )}
     >
-      <Stack.Navigator>
+      <Stack.Navigator screenOptions={{ headerBackButtonDisplayMode: 'minimal' }}>
         <Stack.Screen name="QRWallet" options={{ title: 'QR Wallet' }}>
           {() => (<Suspense fallback={<ScreenLoader />}><QRWalletScreen /></Suspense>)}
         </Stack.Screen>
