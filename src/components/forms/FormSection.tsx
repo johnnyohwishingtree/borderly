@@ -1,8 +1,15 @@
 import { useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, Modal } from 'react-native';
+import { ScanLine } from 'lucide-react-native';
 import { FilledFormSection } from '../../services/forms/formEngine';
+import { BoardingPassScanner } from '../boarding';
 import FormField from './FormField';
 import { FORM_SECTION_IDS } from './testIDs';
+import type { ParsedBoardingPass } from '../../types/boarding';
+import { getAirportLabel } from '../../constants/airports';
+
+// Flight-related field IDs that can be filled from a boarding pass
+const FLIGHT_FIELD_IDS = ['flightNumber', 'airlineCode', 'arrivalAirport', 'departureCity', 'departureAirport'];
 
 interface FormSectionProps {
   section: FilledFormSection;
@@ -24,6 +31,34 @@ export default function FormSection({
   showAutoFillBadges = true,
 }: FormSectionProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  const [showScanner, setShowScanner] = useState(false);
+
+  // Detect if this section has flight-related fields
+  const hasFlightFields = section.fields.some(f =>
+    FLIGHT_FIELD_IDS.includes(f.id),
+  );
+
+  const handleBoardingPassScan = (result: ParsedBoardingPass) => {
+    setShowScanner(false);
+
+    // Map boarding pass data to form field IDs
+    if (result.flightNumber) {
+      onValueChange('flightNumber', result.flightNumber);
+    }
+    if (result.airlineCode) {
+      onValueChange('airlineCode', result.airlineCode);
+    }
+    if (result.arrivalAirport) {
+      onValueChange('arrivalAirport', result.arrivalAirport);
+    }
+    if (result.departureAirport) {
+      // Extract city name from airport code for departureCity field
+      const label = getAirportLabel(result.departureAirport);
+      const cityMatch = label.match(/^(.+?)\s*\(/);
+      const city = cityMatch ? cityMatch[1].trim() : result.departureAirport;
+      onValueChange('departureCity', city);
+    }
+  };
 
   // Calculate section statistics
   const totalFields = section.fields.length;
@@ -101,6 +136,21 @@ export default function FormSection({
 
     return (
       <View className="p-4 bg-surface">
+        {/* Boarding pass scan shortcut for travel/flight sections */}
+        {hasFlightFields && (
+          <Pressable
+            onPress={() => setShowScanner(true)}
+            className="flex-row items-center justify-center px-4 py-2 mb-4 border border-border-default rounded-xl bg-surface-secondary"
+            accessibilityRole="button"
+            accessibilityLabel="Scan boarding pass to fill flight details"
+          >
+            <ScanLine size={16} color="#6366f1" />
+            <Text className="text-accent text-sm font-medium ml-2">
+              Scan boarding pass to fill flight details
+            </Text>
+          </Pressable>
+        )}
+
         {section.fields.map((field) => (
           <FormField
             key={field.id}
@@ -119,6 +169,22 @@ export default function FormSection({
     <View className="mb-6 bg-surface rounded-lg shadow-sm border border-border-default overflow-hidden">
       {renderHeader()}
       {renderFields()}
+
+      {/* Boarding pass scanner modal */}
+      {hasFlightFields && (
+        <Modal
+          visible={showScanner}
+          animationType="slide"
+          presentationStyle="fullScreen"
+          onRequestClose={() => setShowScanner(false)}
+        >
+          <BoardingPassScanner
+            onScanSuccess={handleBoardingPassScan}
+            onScanCancel={() => setShowScanner(false)}
+            onManualEntry={() => setShowScanner(false)}
+          />
+        </Modal>
+      )}
     </View>
   );
 }
