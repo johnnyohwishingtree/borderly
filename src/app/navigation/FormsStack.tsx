@@ -9,9 +9,8 @@ const SelectTravelersScreen = lazy(() => import('@/screens/forms').then(m => ({ 
 const SmartFormScreen = lazy(() => import('@/screens/forms').then(m => ({ default: m.SmartFormScreen })));
 const PortalLinksScreen = lazy(() => import('@/screens/forms').then(m => ({ default: m.PortalLinksScreen })));
 
-// Reuse portal submission + submission guide from trips (they stay in the wizard)
+// Reuse portal submission from trips (it stays in the wizard)
 const PortalSubmissionScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.PortalSubmissionScreen })));
-const SubmissionGuideScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.SubmissionGuideScreen })));
 
 const ScreenLoader = () => (
   <LoadingStates state="loading" variant="spinner" size="medium" text="Loading..." fullScreen={false} />
@@ -47,9 +46,6 @@ export default function FormsNavigator() {
         </Stack.Screen>
         <Stack.Screen name="PortalSubmission" options={{ title: 'Submit to Portal', headerShown: false }}>
           {() => (<Suspense fallback={<ScreenLoader />}><PortalSubmissionScreen /></Suspense>)}
-        </Stack.Screen>
-        <Stack.Screen name="SubmissionGuide" options={{ title: 'Submission Guide' }}>
-          {() => (<Suspense fallback={<ScreenLoader />}><SubmissionGuideScreen /></Suspense>)}
         </Stack.Screen>
       </Stack.Navigator>
     </ErrorBoundary>

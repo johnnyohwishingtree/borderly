@@ -83,11 +83,6 @@ jest.mock('@/components/submission/AutoFillPill', () => {
   return { AutoFillPill: () => <View testID="autofill-pill" /> };
 });
 
-jest.mock('@/components/guide', () => {
-  const { View } = require('react-native');
-  return { CopyableField: () => <View /> };
-});
-
 jest.mock('@/services/schemas/schemaRegistry', () => ({
   getSchemaByCountryCode: jest.fn(() => ({
     countryCode: 'JPN',

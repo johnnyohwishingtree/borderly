@@ -114,8 +114,7 @@ export const PREDEFINED_FLOWS: UserFlow[] = [
     expectedDuration: 300000, // 5 minutes
     steps: [
       { screen: 'TripDetail', action: 'start_form', expectedNext: ['LegForm'], isOptional: false, criticalPath: true },
-      { screen: 'LegForm', action: 'fill_form', expectedNext: ['SubmissionGuide'], isOptional: false, criticalPath: true },
-      { screen: 'SubmissionGuide', action: 'copy_data', expectedNext: ['QRWallet'], isOptional: true, criticalPath: false },
+      { screen: 'LegForm', action: 'fill_form', expectedNext: ['PortalSubmission'], isOptional: false, criticalPath: true },
       { screen: 'QRWallet', action: 'add_qr', expectedNext: [], isOptional: true, criticalPath: false },
     ],
   },

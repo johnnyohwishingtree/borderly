@@ -185,42 +185,27 @@ export default function LegFormScreen() {
           disabled={Object.keys(formData).length === 0}
           testID="save-progress-button"
         />
-        <View className="mt-2 flex-row gap-3">
-          <View className="flex-1">
-            <Button
-              title="Submit in App"
-              onPress={() => {
-                const countryCode = leg.destinationCountry;
-                const schema = schemaRegistry.getSchema(countryCode);
-                if (schema?.portalUrl) {
-                  navigation.navigate('PortalSubmission', {
-                    url: schema.portalUrl,
-                    countryCode,
-                    tripId,
-                    legId,
-                  });
-                } else {
-                  Alert.alert('Error', `Portal URL not found for ${countryCode}.`);
-                }
-              }}
-              variant="secondary"
-              testID="submit-in-app-button"
-              size="large"
-              fullWidth
-            />
-          </View>
+        <View className="mt-2">
           <Button
-            title="Guide"
+            title="Submit in App"
             onPress={() => {
-              navigation.navigate('SubmissionGuide', {
-                tripId,
-                legId,
-                countryCode: leg.destinationCountry,
-              });
+              const countryCode = leg.destinationCountry;
+              const schema = schemaRegistry.getSchema(countryCode);
+              if (schema?.portalUrl) {
+                navigation.navigate('PortalSubmission', {
+                  url: schema.portalUrl,
+                  countryCode,
+                  tripId,
+                  legId,
+                });
+              } else {
+                Alert.alert('Error', `Portal URL not found for ${countryCode}.`);
+              }
             }}
             variant="secondary"
-            testID="open-submission-guide-button"
+            testID="submit-in-app-button"
             size="large"
+            fullWidth
           />
         </View>
       </View>

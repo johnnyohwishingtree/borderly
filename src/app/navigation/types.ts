@@ -30,7 +30,6 @@ export type FormsStackParamList = {
     tripId: string;
     legId: string;
   };
-  SubmissionGuide: { tripId: string; legId: string; countryCode: string; travelerId?: string };
 };
 
 export type OnboardingStackParamList = {
@@ -42,7 +41,6 @@ export type OnboardingStackParamList = {
 /** @deprecated Kept for LegFormScreen/PortalSubmission which still reference these routes */
 export type TripStackParamList = {
   LegForm: { tripId: string; legId: string };
-  SubmissionGuide: { tripId: string; legId: string; countryCode: string; travelerId?: string };
   PortalSubmission: {
     url: string;
     countryCode: string;

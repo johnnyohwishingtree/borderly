@@ -18,7 +18,6 @@ export { usePortalAutoFill } from './usePortalAutoFill';
 export { usePortalAutoLogin } from './usePortalAutoLogin';
 export { usePortalProfiles } from './usePortalProfiles';
 export { usePortalSubmission } from './usePortalSubmission';
-export { useSubmissionGuide } from './useSubmissionGuide';
 export { usePassportValidity } from './usePassportValidity';
 export { useAddQR } from './useAddQR';
 export type { QRFormData } from './useAddQR';

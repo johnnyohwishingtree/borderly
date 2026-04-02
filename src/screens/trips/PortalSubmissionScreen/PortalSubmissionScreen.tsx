@@ -33,7 +33,7 @@ export default function PortalSubmissionScreen() {
       handleWebViewError, handleGoBack, handleGoForward, handleRefresh,
     },
     actions: {
-      handleClose, handleContinueManually, handleSaveQR,
+      handleClose, handleSaveQR,
       handleOpenWallet, dismissPill, dismissQrPayload, clearLoadError,
     },
   } = usePortalSubmission();
@@ -251,22 +251,6 @@ export default function PortalSubmissionScreen() {
               >
                 <Text className="text-white font-semibold text-center">
                   Try Again
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={handleContinueManually}
-                style={({ pressed }) => ({
-                  backgroundColor: '#F3F4F6',
-                  borderRadius: 8,
-                  paddingVertical: 10,
-                  paddingHorizontal: 16,
-                  opacity: pressed ? 0.8 : 1,
-                })}
-                accessibilityLabel="Continue with manual guide"
-                testID={PORTAL_SUBMISSION_IDS.errorContinueManuallyButton.id}
-              >
-                <Text className="text-secondary font-semibold text-center">
-                  Continue Manually
                 </Text>
               </Pressable>
             </View>

@@ -122,11 +122,6 @@ describe('LegFormScreen action buttons', () => {
       getByTestId('submit-in-app-button');
     });
 
-    it('shows "Guide" button', () => {
-      mockCompletionPercentage = 40;
-      const { getByTestId } = render(<LegFormScreen />);
-      getByTestId('open-submission-guide-button');
-    });
 
     it('does not show "Complete Required Fields" text', () => {
       mockCompletionPercentage = 40;

@@ -357,19 +357,9 @@ describe('LegFormScreen — valid form actions', () => {
     }));
   });
 
-  it('shows "Guide" button when form is valid', () => {
+  it('shows "Submit in App" button', () => {
     const { getByTestId } = render(<LegFormScreen />);
-    getByTestId('open-submission-guide-button');
-  });
-
-  it('navigates to SubmissionGuide when guide button is pressed', () => {
-    const { getByTestId } = render(<LegFormScreen />);
-    fireEvent.press(getByTestId('open-submission-guide-button'));
-    expect(mockNavigate).toHaveBeenCalledWith('SubmissionGuide', expect.objectContaining({
-      tripId: 'trip-1',
-      legId: 'leg-1',
-      countryCode: 'JPN',
-    }));
+    getByTestId('submit-in-app-button');
   });
 
   it('shows "Ready" status text when form is valid', () => {

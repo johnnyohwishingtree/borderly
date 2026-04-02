@@ -146,10 +146,6 @@ export function usePortalSubmission() {
     }
   }, [autoLogin]);
 
-  const handleContinueManually = useCallback(() => {
-    (navigation as any).navigate('SubmissionGuide', { legId, tripId });
-  }, [navigation, legId, tripId]);
-
   // ─── Page load & type detection ───────────────────────────────────────────
 
   const handlePageLoad = useCallback(
@@ -335,7 +331,6 @@ export function usePortalSubmission() {
     },
     actions: {
       handleClose,
-      handleContinueManually,
       handleSubmitInApp,
       handleSaveQR,
       handleOpenWallet,

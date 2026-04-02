@@ -53,7 +53,6 @@ const SCREEN_TITLES: Record<string, string> = {
   SelectTravelers: 'Select Travelers',
   SmartForm: 'Fill Forms',
   PortalLinks: 'Submit Forms',
-  SubmissionGuide: 'Submission Guide',
   PortalSubmission: 'Portal Submission',
   // Profile screens
   FamilyManagement: 'Family Members',

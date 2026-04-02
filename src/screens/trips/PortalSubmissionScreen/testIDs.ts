@@ -18,7 +18,6 @@ export const PORTAL_SUBMISSION_IDS = {
   autofillPill: { id: 'autofill-pill', type: 'container' as const },
   loadErrorOverlay: { id: 'load-error-overlay', type: 'container' as const },
   errorTryAgainButton: { id: 'error-try-again-button', type: 'button' as const },
-  errorContinueManuallyButton: { id: 'error-continue-manually-button', type: 'button' as const },
   submitInAppSection: { id: 'submit-in-app-section', type: 'container' as const },
   incompleteFormMessage: { id: 'incomplete-form-message', type: 'container' as const },
   missingFieldsList: { id: 'missing-fields-list', type: 'container' as const },

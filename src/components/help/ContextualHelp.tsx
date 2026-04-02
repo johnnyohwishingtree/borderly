@@ -262,23 +262,6 @@ export const HelpContent = {
     ]
   },
   
-  submissionGuide: {
-    title: 'Submission Guide',
-    description: 'Follow step-by-step instructions to submit your forms to government portals. Copy pre-filled data from Borderly and paste into the official website.',
-    tips: [
-      'Always use official government websites',
-      'Copy data exactly as shown in Borderly',
-      'Save any QR codes or confirmation numbers',
-      'Submit forms well before your travel date'
-    ],
-    links: [
-      {
-        title: 'Portal requirements by country',
-        action: () => Alert.alert('Requirements', 'This would show country-specific info')
-      }
-    ]
-  },
-  
   biometricSecurity: {
     title: 'Biometric Security',
     description: 'Enable Face ID, Touch ID, or PIN protection to secure your passport data. This adds an extra layer of security when accessing sensitive information.',

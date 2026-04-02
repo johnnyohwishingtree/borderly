@@ -12,5 +12,4 @@ export const LEG_FORM_IDS: Record<string, TestMeta> = {
   markReadyButton: { id: 'mark-ready-button', type: 'button', zone: 'footer' },
   saveProgressButton: { id: 'save-progress-button', type: 'button', zone: 'footer' },
   submitInAppButton: { id: 'submit-in-app-button', type: 'button', zone: 'footer' },
-  openSubmissionGuideButton: { id: 'open-submission-guide-button', type: 'button', zone: 'footer' },
 };

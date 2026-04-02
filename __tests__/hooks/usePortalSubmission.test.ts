@@ -393,23 +393,6 @@ describe('usePortalSubmission — handleClose', () => {
   });
 });
 
-// ── handleContinueManually ───────────────────────────────────────────────────
-
-describe('usePortalSubmission — handleContinueManually', () => {
-  it('navigates to SubmissionGuide with legId and tripId', () => {
-    const { result } = renderHook(() => usePortalSubmission());
-
-    act(() => {
-      result.current.actions.handleContinueManually();
-    });
-
-    expect(mockNavigate).toHaveBeenCalledWith('SubmissionGuide', {
-      legId: 'leg_1',
-      tripId: 'trip_1',
-    });
-  });
-});
-
 // ── handleNavigationChange ───────────────────────────────────────────────────
 
 describe('usePortalSubmission — handleNavigationChange', () => {
