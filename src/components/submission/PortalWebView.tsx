@@ -125,19 +125,31 @@ const PortalWebView = forwardRef<PortalWebViewHandle, PortalWebViewProps>(
     }));
 
     /** Check whether a URL belongs to an allowed domain. */
+    // Extract parent domain for sibling subdomain matching.
+    // Government portals redirect between subdomains (e.g., vjw-lp.digital.go.jp → services.digital.go.jp)
+    const getParentDomain = (hostname: string): string => {
+      const parts = hostname.split('.');
+      // Country TLDs: .go.jp, .gov.my, .gov.sg, .gov.ph, .go.th, .go.kr → keep 3 parts
+      if (parts.length >= 3 && ['go', 'gov', 'co', 'or'].includes(parts[parts.length - 2])) {
+        return parts.slice(-3).join('.');
+      }
+      return parts.slice(-2).join('.');
+    };
+
     const isAllowedDomain = (targetUrl: string): boolean => {
       try {
         const parsed = new URL(targetUrl);
-        return ALLOWED_DOMAINS.some(
-          (domain) =>
-            parsed.hostname === domain ||
-            parsed.hostname.endsWith('.' + domain),
-        );
+        const targetParent = getParentDomain(parsed.hostname);
+        return ALLOWED_DOMAINS.some((domain) => {
+          const allowedParent = getParentDomain(domain);
+          return parsed.hostname === domain ||
+            parsed.hostname.endsWith('.' + domain) ||
+            targetParent === allowedParent;
+        });
       } catch (e) {
         if (__DEV__) {
           console.error(`isAllowedDomain: Unparseable URL '${targetUrl}'`, e);
         }
-        // Unparseable URL — deny
         return false;
       }
     };
