@@ -15,17 +15,26 @@ class ActionViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = UIColor.systemBackground
 
+        NSLog("[BorderlyAction] viewDidLoad called")
+        NSLog("[BorderlyAction] inputItems count: \(extensionContext?.inputItems.count ?? 0)")
+
         // Get the JavaScript results from the page
         guard let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
               let itemProvider = extensionItem.attachments?.first else {
+            NSLog("[BorderlyAction] No extension item or attachment")
             showError("Could not access page data")
             return
         }
 
+        NSLog("[BorderlyAction] Provider types: \(itemProvider.registeredTypeIdentifiers)")
+
         // Request the preprocessed JavaScript results
         let jsType = UTType.propertyList.identifier
+        NSLog("[BorderlyAction] Looking for type: \(jsType)")
         if itemProvider.hasItemConformingToTypeIdentifier(jsType) {
+            NSLog("[BorderlyAction] Found property list type, loading...")
             itemProvider.loadItem(forTypeIdentifier: jsType, options: nil) { [weak self] item, error in
+                NSLog("[BorderlyAction] loadItem callback fired, error: \(String(describing: error))")
                 guard let self = self else { return }
                 if let error = error {
                     DispatchQueue.main.async { self.showError(error.localizedDescription) }
@@ -45,6 +54,7 @@ class ActionViewController: UIViewController {
                 }
             }
         } else {
+            NSLog("[BorderlyAction] No property list type found in provider")
             showError("This extension works with web pages in Safari")
         }
     }
