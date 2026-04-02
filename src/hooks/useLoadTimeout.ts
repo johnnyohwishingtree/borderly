@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 
-const DEFAULT_TIMEOUT_MS = 30000;
+const DEFAULT_TIMEOUT_MS = 60000;
 
 /**
  * Manages a load timeout for WebView page loads.
@@ -31,9 +31,15 @@ export function useLoadTimeout(timeoutMs: number = DEFAULT_TIMEOUT_MS) {
     setLoadError(null);
   }, [clearTimer]);
 
-  const onWebViewError = useCallback((_errorMessage: string) => {
-    clearTimer();
-    setLoadError('Failed to load the portal. Please check your connection and try again.');
+  const onWebViewError = useCallback((_errorMessage: string, nativeEvent?: { description?: string; code?: number }) => {
+    // Only show error for main frame failures, not sub-resource errors
+    // Common sub-resource errors: blocked scripts, tracking pixels, font loads
+    const isMainFrameError = !nativeEvent?.description?.includes('cancelled') &&
+      !nativeEvent?.description?.includes('Frame load interrupted');
+    if (isMainFrameError) {
+      clearTimer();
+      setLoadError('Failed to load the portal. Please check your connection and try again.');
+    }
   }, [clearTimer]);
 
   const clearError = useCallback(() => {

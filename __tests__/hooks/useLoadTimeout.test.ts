@@ -87,7 +87,7 @@ describe('useLoadTimeout', () => {
     expect(result.current.loadError).toBeNull();
   });
 
-  it('uses default timeout of 30s', () => {
+  it('uses default timeout of 60s', () => {
     const { result } = renderHook(() => useLoadTimeout());
 
     act(() => {
@@ -95,7 +95,7 @@ describe('useLoadTimeout', () => {
     });
 
     act(() => {
-      jest.advanceTimersByTime(29999);
+      jest.advanceTimersByTime(59999);
     });
 
     expect(result.current.loadError).toBeNull();
