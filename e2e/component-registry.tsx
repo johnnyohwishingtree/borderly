@@ -43,11 +43,6 @@ import CountryFlag from '../src/components/trips/CountryFlag';
 import TripCard from '../src/components/trips/TripCard';
 import PassportValidityWarning from '../src/components/trips/PassportValidityWarning';
 
-// Guide components
-import CopyableField from '../src/components/guide/CopyableField';
-import GuideProgress from '../src/components/guide/GuideProgress';
-import StepCard from '../src/components/guide/StepCard';
-
 // Form components
 import AutoFilledBadge from '../src/components/forms/AutoFilledBadge';
 
@@ -650,93 +645,6 @@ export const componentRegistry: Record<string, ComponentEntry> = {
             countryName="Japan"
             requiredMonths={6}
             passportExpiry="2026-07-15"
-          />
-        ),
-      },
-    },
-  },
-
-  // ─── Guide ─────────────────────────────────────────────────────
-
-  CopyableField: {
-    domain: 'guide',
-    variants: {
-      default: {
-        description: 'Copyable field with label and value',
-        render: () => <CopyableField label="Passport Number" value="AB1234567" />,
-      },
-    },
-  },
-
-  GuideProgress: {
-    domain: 'guide',
-    variants: {
-      'step-1-of-5': {
-        description: 'Progress at step 1 of 5',
-        render: () => <GuideProgress currentStep={1} totalSteps={5} />,
-      },
-      'step-3-of-5': {
-        description: 'Progress at step 3 of 5 (midway)',
-        render: () => <GuideProgress currentStep={3} totalSteps={5} />,
-      },
-      complete: {
-        description: 'Progress complete (5 of 5)',
-        render: () => <GuideProgress currentStep={5} totalSteps={5} />,
-      },
-    },
-  },
-
-  StepCard: {
-    domain: 'guide',
-    variants: {
-      current: {
-        description: 'Current step with fields and tips',
-        render: () => (
-          <StepCard
-            step={{
-              order: 2,
-              title: 'Fill in Personal Information',
-              description: 'Enter your passport details on the Visit Japan Web form.',
-              fieldsOnThisScreen: ['surname', 'givenNames'],
-              tips: ['Use the exact name as shown on your passport', 'Double-check your passport number'],
-            }}
-            isCompleted={false}
-            isCurrent={true}
-            fieldsData={{
-              surname: { label: 'Surname', value: 'SMITH' },
-              givenNames: { label: 'Given Names', value: 'JOHN WILLIAM' },
-            }}
-            onMarkComplete={noop}
-          />
-        ),
-      },
-      completed: {
-        description: 'Completed step',
-        render: () => (
-          <StepCard
-            step={{
-              order: 1,
-              title: 'Navigate to Visit Japan Web',
-              description: 'Open the Visit Japan Web portal in your browser.',
-              tips: [],
-            }}
-            isCompleted={true}
-            isCurrent={false}
-          />
-        ),
-      },
-      upcoming: {
-        description: 'Upcoming locked step',
-        render: () => (
-          <StepCard
-            step={{
-              order: 3,
-              title: 'Submit Declaration',
-              description: 'Review and submit your customs declaration.',
-              tips: [],
-            }}
-            isCompleted={false}
-            isCurrent={false}
           />
         ),
       },
