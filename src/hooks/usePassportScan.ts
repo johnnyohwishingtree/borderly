@@ -102,15 +102,17 @@ export function usePassportScan() {
         navigation.navigate('FamilyManagement' as any);
         return;
       }
-      // Track the added profile
-      const isFirst = addedProfiles.length === 0;
-      setAddedProfiles(prev => [...prev, {
-        id: savedProfile.id,
-        givenNames: savedProfile.givenNames,
-        surname: savedProfile.surname,
-        isPrimary: isFirst,
-      }]);
-      if (isFirst) setPrimaryProfileId(savedProfile.id);
+      // Track the added profile — use functional update to avoid stale closure
+      setAddedProfiles(prev => {
+        const isFirst = prev.length === 0;
+        if (isFirst) setPrimaryProfileId(savedProfile.id);
+        return [...prev, {
+          id: savedProfile.id,
+          givenNames: savedProfile.givenNames,
+          surname: savedProfile.surname,
+          isPrimary: isFirst,
+        }];
+      });
       setMode('add_another');
     };
 
