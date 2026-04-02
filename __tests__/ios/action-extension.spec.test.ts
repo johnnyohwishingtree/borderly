@@ -14,7 +14,7 @@ import { resolve } from 'path';
 
 const ROOT = resolve(__dirname, '../..');
 
-test.skip('Action Extension target directory exists with Swift/ObjC source', () => {
+test('Action Extension target directory exists with Swift/ObjC source', () => {
   // Must have a dedicated extension directory with native source files
   const extensionDir = resolve(ROOT, 'ios/BorderlyAction');
   expect(existsSync(extensionDir)).toBe(true);
@@ -24,7 +24,7 @@ test.skip('Action Extension target directory exists with Swift/ObjC source', () 
   expect(hasSource).toBe(true);
 });
 
-test.skip('Action Extension has an Info.plist with NSExtension config', () => {
+test('Action Extension has an Info.plist with NSExtension config', () => {
   const plist = resolve(ROOT, 'ios/BorderlyAction/Info.plist');
   expect(existsSync(plist)).toBe(true);
 
@@ -33,6 +33,7 @@ test.skip('Action Extension has an Info.plist with NSExtension config', () => {
   expect(content).toMatch(/com\.apple\.ui-services/);
 });
 
+// TODO: Add BorderlyAction target in Xcode (requires Xcode UI, not scriptable)
 test.skip('Action Extension is a separate target in Xcode project', () => {
   const pbxproj = readFileSync(
     resolve(ROOT, 'ios/Borderly.xcodeproj/project.pbxproj'),
@@ -42,7 +43,7 @@ test.skip('Action Extension is a separate target in Xcode project', () => {
   expect(pbxproj).toMatch(/com\.apple\.product-type\.app-extension/);
 });
 
-test.skip('Action Extension JavaScript injects heuristic filler into web page', () => {
+test('Action Extension JavaScript injects heuristic filler into web page', () => {
   // The extension must have a JS file that runs in the web page context
   const extensionDir = resolve(ROOT, 'ios/BorderlyAction');
   expect(existsSync(extensionDir)).toBe(true);

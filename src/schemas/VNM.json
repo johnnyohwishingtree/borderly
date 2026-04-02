@@ -4,6 +4,7 @@
   "schemaVersion": "2.0.0",
   "lastUpdated": "2026-03-07T00:00:00Z",
   "portalUrl": "https://evisa.xuatnhapcanh.gov.vn/",
+  "portalLaunchMode": "webview",
   "portalName": "Vietnam e-Visa Portal",
   "submissionDeadlineHours": 72,
   "recommendedLeadTimeHours": 168,

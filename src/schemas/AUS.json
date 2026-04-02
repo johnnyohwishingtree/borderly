@@ -4,6 +4,7 @@
   "schemaVersion": "1.0.0",
   "lastUpdated": "2026-03-22T00:00:00Z",
   "portalUrl": "https://online.abf.gov.au/incoming-passenger-card/",
+  "portalLaunchMode": "webview",
   "portalName": "ABF Digital Incoming Passenger Card (DIPC)",
   "submissionDeadlineHours": 0,
   "recommendedLeadTimeHours": 48,

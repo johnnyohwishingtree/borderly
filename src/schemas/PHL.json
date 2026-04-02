@@ -4,6 +4,7 @@
   "schemaVersion": "1.0.0",
   "lastUpdated": "2026-03-25T00:00:00Z",
   "portalUrl": "https://etravel.gov.ph",
+  "portalLaunchMode": "webview",
   "portalName": "Philippines eTravel",
   "submissionDeadlineHours": 72,
   "recommendedLeadTimeHours": 96,

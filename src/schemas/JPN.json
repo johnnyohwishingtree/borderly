@@ -4,6 +4,7 @@
   "schemaVersion": "1.0.0",
   "lastUpdated": "2025-06-01T00:00:00Z",
   "portalUrl": "https://vjw-lp.digital.go.jp/en/registration/",
+  "portalLaunchMode": "browser",
   "portalName": "Visit Japan Web",
   "submissionDeadlineHours": 24,
   "recommendedLeadTimeHours": 72,

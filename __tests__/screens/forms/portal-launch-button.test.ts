@@ -13,7 +13,7 @@ import { resolve } from 'path';
 
 const ROOT = resolve(__dirname, '../../..');
 
-test.skip('usePortalLinks checks portalLaunchMode before navigating', () => {
+test('usePortalLinks checks portalLaunchMode before navigating', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/hooks/usePortalLinks.ts'),
     'utf-8',
@@ -23,7 +23,7 @@ test.skip('usePortalLinks checks portalLaunchMode before navigating', () => {
   expect(content).toMatch(/Linking\.openURL|openURL/);
 });
 
-test.skip('PortalLinksScreen shows "Open in Browser" for browser-mode portals', () => {
+test('PortalLinksScreen shows "Open in Browser" for browser-mode portals', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/screens/forms/PortalLinksScreen/PortalLinksScreen.tsx'),
     'utf-8',

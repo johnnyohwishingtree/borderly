@@ -71,7 +71,7 @@ export default function PortalLinksScreen() {
                   )}
                 </View>
                 <Button
-                  title={card.isSubmitted ? 'Resubmit' : 'Launch Portal'}
+                  title={card.isSubmitted ? 'Resubmit' : card.portalLaunchMode === 'browser' ? 'Open in Browser' : 'Launch Portal'}
                   onPress={() => launchPortal(card.countryCode)}
                   variant={card.isSubmitted ? 'secondary' : 'primary'}
                   size="large"

@@ -4,6 +4,7 @@
   "schemaVersion": "2.1.0",
   "lastUpdated": "2026-03-15T00:00:00Z",
   "portalUrl": "https://tp.consular.go.th/",
+  "portalLaunchMode": "webview",
   "portalName": "Thailand Digital Arrival Card (Coming Soon)",
   "submissionDeadlineHours": 72,
   "recommendedLeadTimeHours": 168,

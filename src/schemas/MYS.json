@@ -4,6 +4,7 @@
   "schemaVersion": "1.0.0",
   "lastUpdated": "2025-06-01T00:00:00Z",
   "portalUrl": "https://imigresen-online.imi.gov.my/mdac/main",
+  "portalLaunchMode": "webview",
   "portalName": "Malaysia Digital Arrival Card (MDAC)",
   "submissionDeadlineHours": 0,
   "recommendedLeadTimeHours": 24,

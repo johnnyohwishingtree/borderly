@@ -14,7 +14,7 @@ import { resolve } from 'path';
 const ROOT = resolve(__dirname, '../..');
 const SCHEMAS_DIR = resolve(ROOT, 'src/schemas');
 
-test.skip('every country schema has a portalLaunchMode field', () => {
+test('every country schema has a portalLaunchMode field', () => {
   const schemaFiles = readdirSync(SCHEMAS_DIR)
     .filter(f => f.endsWith('.json') && f !== 'manifest.json');
 
@@ -26,7 +26,7 @@ test.skip('every country schema has a portalLaunchMode field', () => {
   }
 });
 
-test.skip('login-required portals use browser launch mode', () => {
+test('login-required portals use browser launch mode', () => {
   // Japan requires account creation → must be browser
   const jpn = JSON.parse(readFileSync(resolve(SCHEMAS_DIR, 'JPN.json'), 'utf-8'));
   expect(jpn.portalLaunchMode).toBe('browser');
