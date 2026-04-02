@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTripStore } from '@/stores/useTripStore';
 import { schemaRegistry, initializeSchemaRegistry } from '@/services/schemas';
@@ -60,18 +59,13 @@ export function usePortalLinks({ tripId, countryCodes }: UsePortalLinksOptions) 
     const card = portalCards.find(c => c.countryCode === countryCode);
     if (!card) return;
 
-    if (card.portalLaunchMode === 'browser') {
-      // Login-required portals open in Safari
-      Linking.openURL(card.portalUrl);
-    } else {
-      // Simple portals open in-app WebView with auto-fill
-      navigation.navigate('PortalSubmission', {
-        url: card.portalUrl,
-        countryCode: card.countryCode,
-        tripId,
-        legId: card.legId,
-      });
-    }
+    // Always use in-app WebView with auto-fill pill
+    navigation.navigate('PortalSubmission', {
+      url: card.portalUrl,
+      countryCode: card.countryCode,
+      tripId,
+      legId: card.legId,
+    });
   }, [navigation, portalCards, tripId]);
 
   return { portalCards, launchPortal };

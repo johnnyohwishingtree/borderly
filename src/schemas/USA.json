@@ -4,7 +4,7 @@
   "schemaVersion": "2.1.0",
   "lastUpdated": "2026-03-15T00:00:00Z",
   "portalUrl": "https://cbpone.cbp.dhs.gov/",
-  "portalLaunchMode": "browser",
+  "portalLaunchMode": "webview",
   "portalName": "CBP One (Customs Declaration)",
   "submissionDeadlineHours": 72,
   "recommendedLeadTimeHours": 168,

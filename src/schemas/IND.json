@@ -4,7 +4,7 @@
   "schemaVersion": "1.0.0",
   "lastUpdated": "2026-03-25T00:00:00Z",
   "portalUrl": "https://www.newdelhiairport.in/airsuvidha",
-  "portalLaunchMode": "browser",
+  "portalLaunchMode": "webview",
   "portalName": "India Air Suvidha / e-Arrival Card",
   "submissionDeadlineHours": 72,
   "recommendedLeadTimeHours": 96,

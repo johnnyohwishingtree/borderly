@@ -4,7 +4,7 @@
   "schemaVersion": "2.1.0",
   "lastUpdated": "2026-03-15T00:00:00Z",
   "portalUrl": "https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta.html",
-  "portalLaunchMode": "browser",
+  "portalLaunchMode": "webview",
   "portalName": "Electronic Travel Authorization (eTA) — Archived",
   "submissionDeadlineHours": 0,
   "recommendedLeadTimeHours": 24,
