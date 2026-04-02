@@ -1,6 +1,6 @@
-import { View, Text, ScrollView, Alert, NativeModules } from 'react-native';
+import { View, Text, ScrollView, Pressable, Alert, NativeModules } from 'react-native';
 import { Controller } from 'react-hook-form';
-import { Camera, Pencil } from 'lucide-react-native';
+import { Camera, Pencil, Check } from 'lucide-react-native';
 import { useTheme } from '@/utils/theme';
 import { Button, Input, HelpHint, SearchableSelect, ProgressIndicator, DatePickerField, ScreenContainer } from '@/components/ui';
 import { ALL_COUNTRIES } from '@/constants/countries';
@@ -14,10 +14,107 @@ import { PASSPORT_SCAN_IDS } from './testIDs';
 import { getTodayISO } from '@/utils/dateUtils';
 
 export default function PassportScanScreen() {
-  const { scan, profile, form, ui, navigation, family } = usePassportScan();
+  const { scan, profile, form, ui, navigation, family, familyLoop } = usePassportScan();
 
   const { colors } = useTheme();
   const { control, handleSubmit, formState: { errors } } = form;
+
+  // Add Another Traveler prompt
+  if (scan.mode === 'add_another') {
+    const lastAdded = familyLoop.addedProfiles[familyLoop.addedProfiles.length - 1];
+    return (
+      <ScreenContainer className="bg-surface">
+        <View className="flex-1 justify-center items-center px-6">
+          <View className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full items-center justify-center mb-6">
+            <Check size={40} color="#16a34a" />
+          </View>
+          <Text className="text-2xl font-bold text-primary text-center mb-2">
+            {lastAdded ? `${lastAdded.givenNames} ${lastAdded.surname}` : 'Profile'} Added
+          </Text>
+          <Text className="text-base text-secondary text-center mb-2">
+            {familyLoop.addedProfiles.length} {familyLoop.addedProfiles.length === 1 ? 'traveler' : 'travelers'} registered
+          </Text>
+          <Text className="text-sm text-tertiary text-center mb-8">
+            Scan another passport to add a family member, or continue to the app.
+          </Text>
+          <View className="w-full space-y-3">
+            <Button
+              title="Add Another Traveler"
+              onPress={familyLoop.handleAddAnother}
+              variant="primary"
+              size="large"
+              fullWidth
+            />
+            <Button
+              title="Done"
+              onPress={familyLoop.handleDoneAddingProfiles}
+              variant="secondary"
+              size="large"
+              fullWidth
+            />
+          </View>
+        </View>
+      </ScreenContainer>
+    );
+  }
+
+  // Family Summary — shown after Done when 2+ profiles
+  if (scan.mode === 'family_summary') {
+    return (
+      <ScreenContainer className="bg-surface">
+        <ScrollView className="flex-1">
+          <View className="px-6 py-8">
+            <Text className="text-2xl font-bold text-primary text-center mb-2">
+              Your Travel Group
+            </Text>
+            <Text className="text-base text-secondary text-center mb-6">
+              Tap a profile to set as primary. The primary profile auto-fills forms by default.
+            </Text>
+
+            <View className="space-y-3">
+              {familyLoop.addedProfiles.map((p) => (
+                <Pressable
+                  key={p.id}
+                  onPress={() => familyLoop.handleChangePrimary(p.id)}
+                  className={`p-4 rounded-xl border-2 ${
+                    p.isPrimary
+                      ? 'border-green-500 bg-green-50 dark:bg-green-950'
+                      : 'border-border-default bg-surface'
+                  }`}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${p.givenNames} ${p.surname}${p.isPrimary ? ', primary profile' : ''}`}
+                >
+                  <View className="flex-row items-center justify-between">
+                    <View>
+                      <Text className="text-lg font-semibold text-primary">
+                        {p.givenNames} {p.surname}
+                      </Text>
+                      {p.isPrimary && (
+                        <Text className="text-sm text-green-600 dark:text-green-400 font-medium">
+                          Primary Profile
+                        </Text>
+                      )}
+                    </View>
+                    {p.isPrimary && <Check size={24} color="#16a34a" />}
+                  </View>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        </ScrollView>
+
+        <View className="bg-surface border-t border-border-default px-6 py-4 pb-8">
+          <Button
+            title="Continue"
+            onPress={familyLoop.handleFamilySummaryContinue}
+            variant="primary"
+            size="large"
+            fullWidth
+          />
+        </View>
+      </ScreenContainer>
+    );
+  }
 
   if (scan.mode === 'scanning') {
     return (

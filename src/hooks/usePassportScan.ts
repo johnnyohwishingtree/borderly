@@ -42,10 +42,12 @@ export function usePassportScan() {
   const relationship = route.params?.relationship || 'self';
   const profileId = route.params?.profileId || null;
 
-  const [mode, setMode] = useState<'method' | 'scanning' | 'preview' | 'manual'>('method');
+  const [mode, setMode] = useState<'method' | 'scanning' | 'preview' | 'manual' | 'add_another' | 'family_summary'>('method');
   const [scanResult, setScanResult] = useState<MRZParseResult | null>(null);
   const [scannedProfile, setScannedProfile] = useState<Partial<TravelerProfile> | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [addedProfiles, setAddedProfiles] = useState<Array<{ id: string; givenNames: string; surname: string; isPrimary: boolean }>>([]);
+  const [primaryProfileId, setPrimaryProfileId] = useState<string | null>(null);
   const [devicePerformance, setDevicePerformance] = useState<'low' | 'medium' | 'high'>('medium');
   const [showPerformanceHint, setShowPerformanceHint] = useState(false);
   const [storageError, setStorageError] = useState<AppError | string | null>(null);
@@ -95,12 +97,21 @@ export function usePassportScan() {
     setIsSubmitting(true);
     setStorageError(null);
 
-    const navigateAfterSave = () => {
+    const navigateAfterSave = (savedProfile: { id: string; givenNames: string; surname: string }) => {
       if (familyMode) {
         navigation.navigate('FamilyManagement' as any);
-      } else {
-        setOnboardingComplete(true);
+        return;
       }
+      // Track the added profile
+      const isFirst = addedProfiles.length === 0;
+      setAddedProfiles(prev => [...prev, {
+        id: savedProfile.id,
+        givenNames: savedProfile.givenNames,
+        surname: savedProfile.surname,
+        isPrimary: isFirst,
+      }]);
+      if (isFirst) setPrimaryProfileId(savedProfile.id);
+      setMode('add_another');
     };
 
     try {
@@ -152,10 +163,22 @@ export function usePassportScan() {
         } else {
           await saveProfile(completeProfile);
         }
+
+        setLastFailedOperation(null);
+        navigateAfterSave({
+          id: completeProfile.id,
+          givenNames: completeProfile.givenNames,
+          surname: completeProfile.surname,
+        });
+        return;
       }
 
       setLastFailedOperation(null);
-      navigateAfterSave();
+      navigateAfterSave({
+        id: profileId || '',
+        givenNames: profileData.givenNames || '',
+        surname: profileData.surname || '',
+      });
     } catch (error) {
       setLastFailedOperation({ type: 'save', data: profileData });
 
@@ -171,7 +194,11 @@ export function usePassportScan() {
         onRecoverySuccess: () => {
           setStorageError(null);
           setLastFailedOperation(null);
-          navigateAfterSave();
+          navigateAfterSave({
+            id: '',
+            givenNames: profileData.givenNames || '',
+            surname: profileData.surname || '',
+          });
         }
       };
 
@@ -279,6 +306,43 @@ export function usePassportScan() {
   const handleStartScanning = useCallback(() => setMode('scanning'), []);
   const clearStorageError = useCallback(() => setStorageError(null), []);
 
+  // Family onboarding loop handlers
+  const handleAddAnother = useCallback(() => {
+    setScanResult(null);
+    setScannedProfile(null);
+    setMode('method');
+  }, []);
+
+  const handleDoneAddingProfiles = useCallback(() => {
+    if (addedProfiles.length <= 1) {
+      // Solo traveler — skip summary, go straight to app
+      setOnboardingComplete(true);
+    } else {
+      setMode('family_summary');
+    }
+  }, [addedProfiles.length, setOnboardingComplete]);
+
+  const handleChangePrimary = useCallback((newPrimaryId: string) => {
+    setPrimaryProfileId(newPrimaryId);
+    setAddedProfiles(prev => prev.map(p => ({
+      ...p,
+      isPrimary: p.id === newPrimaryId,
+    })));
+  }, []);
+
+  const handleFamilySummaryContinue = useCallback(async () => {
+    // Switch profile store to the selected primary
+    if (primaryProfileId) {
+      try {
+        const { switchToProfile } = useProfileStore.getState();
+        await switchToProfile(primaryProfileId);
+      } catch {
+        // Non-critical — default profile will work
+      }
+    }
+    setOnboardingComplete(true);
+  }, [primaryProfileId, setOnboardingComplete]);
+
   return {
     scan: {
       result: scanResult,
@@ -311,6 +375,14 @@ export function usePassportScan() {
     },
     navigation: {
       handleBack,
+    },
+    familyLoop: {
+      addedProfiles,
+      primaryProfileId,
+      handleAddAnother,
+      handleDoneAddingProfiles,
+      handleChangePrimary,
+      handleFamilySummaryContinue,
     },
     family: {
       mode: familyMode,
