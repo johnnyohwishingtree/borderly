@@ -79,21 +79,56 @@ class ActionViewController: UIViewController {
     }
 
     private func loadProfileFromKeychain() -> [String: String]? {
+        // react-native-keychain stores profiles with service "borderly_profile_<id>"
+        // and password containing JSON. Search for any matching service.
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: "borderly_profile",
+            kSecAttrAccount as String: "borderly_user",
             kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne,
+            kSecReturnAttributes as String: true,
+            kSecMatchLimit as String: kSecMatchLimitAll,
         ]
 
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
 
-        guard status == errSecSuccess, let data = result as? Data else {
+        NSLog("[BorderlyAction] Keychain query status: \(status)")
+
+        guard status == errSecSuccess, let items = result as? [[String: Any]] else {
+            NSLog("[BorderlyAction] No keychain items found (status: \(status))")
             return nil
         }
 
-        return try? JSONSerialization.jsonObject(with: data) as? [String: String]
+        NSLog("[BorderlyAction] Found \(items.count) keychain items")
+
+        // Find the first profile item (service starts with "borderly_profile_")
+        for item in items {
+            guard let service = item[kSecAttrService as String] as? String,
+                  service.hasPrefix("borderly_profile_"),
+                  let data = item[kSecValueData as String] as? Data else {
+                continue
+            }
+
+            NSLog("[BorderlyAction] Found profile with service: \(service)")
+
+            // react-native-keychain stores password as UTF-8 string, not raw data
+            if let jsonString = String(data: data, encoding: .utf8),
+               let jsonData = jsonString.data(using: .utf8),
+               let profile = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any] {
+                // Flatten to [String: String] for the fill script
+                var result: [String: String] = [:]
+                for (key, value) in profile {
+                    if let str = value as? String {
+                        result[key] = str
+                    }
+                }
+                NSLog("[BorderlyAction] Loaded profile: \(result.keys.sorted())")
+                return result
+            }
+        }
+
+        NSLog("[BorderlyAction] No borderly_profile_ items found")
+        return nil
     }
 
     private func buildFillScript(from profile: [String: String]) -> String {
