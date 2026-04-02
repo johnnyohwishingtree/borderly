@@ -3,7 +3,6 @@ import {
   Text,
   Pressable,
   SafeAreaView,
-  Animated,
   StyleSheet,
 } from 'react-native';
 import {
@@ -24,8 +23,8 @@ export default function PortalSubmissionScreen() {
   const {
     route: { url },
     webViewRef,
-    state: { navState, currentStep, qrPayload, pageType, pillDismissed },
-    derived: { schema, totalSteps, progressPercent, loadError },
+    state: { navState, qrPayload, pageType, pillDismissed },
+    derived: { schema, loadError },
     autoLogin,
     autoFill,
     webViewHandlers: {
@@ -56,31 +55,6 @@ export default function PortalSubmissionScreen() {
           </Pressable>
         </View>
 
-        {totalSteps > 0 && (
-          <View className="mt-2">
-            <View className="flex-row items-center justify-between mb-1">
-              <Text className="text-xs text-tertiary">
-                Step {currentStep} of {totalSteps}
-              </Text>
-              {schema?.submissionGuide?.[currentStep - 1]?.title ? (
-                <Text className="text-xs text-blue-600 font-medium" numberOfLines={1}>
-                  {schema.submissionGuide[currentStep - 1].title}
-                </Text>
-              ) : null}
-            </View>
-            <View className="h-2 bg-surface-tertiary rounded-full overflow-hidden">
-              <Animated.View
-                style={{
-                  height: '100%',
-                  width: `${progressPercent}%`,
-                  backgroundColor: '#3B82F6',
-                  borderRadius: 9999,
-                }}
-                testID={PORTAL_SUBMISSION_IDS.progressBar.id}
-              />
-            </View>
-          </View>
-        )}
       </View>
 
       {/* Loading indicator */}
