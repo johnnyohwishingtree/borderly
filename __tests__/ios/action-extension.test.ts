@@ -33,8 +33,7 @@ test('Action Extension has an Info.plist with NSExtension config', () => {
   expect(content).toMatch(/com\.apple\.ui-services/);
 });
 
-// TODO: Add BorderlyAction target in Xcode (requires Xcode UI, not scriptable)
-test.skip('Action Extension is a separate target in Xcode project', () => {
+test('Action Extension is a separate target in Xcode project', () => {
   const pbxproj = readFileSync(
     resolve(ROOT, 'ios/Borderly.xcodeproj/project.pbxproj'),
     'utf-8',

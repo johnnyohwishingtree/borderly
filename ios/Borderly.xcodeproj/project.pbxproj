@@ -14,15 +14,14 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		1BBC473A077B620B59EAB5E7 /* ApplePlacesModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AC33904D1172F95ABCA981D /* ApplePlacesModule.swift */; };
 		1C4F873D095F94DB8D7B0FBB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
-		1D6446A4FA8FB5C0BD164221 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E4E2C17F2D0528420E78A6E /* AuthenticationServices.framework */; };
-		301C3A5E6AF341486419EA33 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D96B74534A64715125C153C /* Foundation.framework */; };
+		5C2CAA59DB0E0D4FF954D365 /* ActionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5858E59ED4FE8825B08B2118 /* ActionViewController.swift */; };
 		7723C77FF0ECB0ED2B792EC6 /* ImageBarcodeScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 1C5853AF18A5459FE2C72B83 /* ImageBarcodeScanner.m */; };
-		78A5452D0AE8024F8EDBC314 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09A2DC0977895418A8A9FE88 /* Security.framework */; };
+		78236C2797D8D3DDB504187F /* BorderlyAction.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = F0D3FD225CAF96A4379CB86F /* BorderlyAction.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		7BCB3FD3F1EC6B8406B2C0C6 /* Action.js in Resources */ = {isa = PBXBuildFile; fileRef = 06FA199203ADE1597688921C /* Action.js */; };
 		7ED0FA2DF8105EC628FE573E /* libPods-Borderly.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 75961698FA278F6B6F5CBD37 /* libPods-Borderly.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		8BD3C738B61880EEBACEAC50 /* CredentialProviderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D176774CD5ADDAC3EBBDF5CF /* CredentialProviderViewController.swift */; };
 		8FC36D05EAC6847A2C012F95 /* ApplePlacesModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 386A2DCCE22CDA0E6496286B /* ApplePlacesModule.m */; };
-		951E08B597A676537BCE0AD5 /* BorderlyAutoFill.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9D19D7F8AC6ECA5AB9DA631C /* BorderlyAutoFill.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		9DC15D668DA519DB843A35FB /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D96B74534A64715125C153C /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,23 +32,16 @@
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
 			remoteInfo = Borderly;
 		};
-		B0CF33A845755169CC1F8AA6 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 9EEBACE79376B09274A78D37;
-			remoteInfo = BorderlyAutoFill;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		2AD84D804671C0241172F08A /* Embed App Extensions */ = {
+		F22F1B06A420DE99A8731C7D /* Embed App Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				951E08B597A676537BCE0AD5 /* BorderlyAutoFill.appex in Embed App Extensions */,
+				78236C2797D8D3DDB504187F /* BorderlyAction.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -60,6 +52,7 @@
 		00E356EE1AD99517003FC87E /* BorderlyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BorderlyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* BorderlyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BorderlyTests.m; sourceTree = "<group>"; };
+		06FA199203ADE1597688921C /* Action.js */ = {isa = PBXFileReference; includeInIndex = 1; path = Action.js; sourceTree = "<group>"; };
 		09A2DC0977895418A8A9FE88 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		13B07F961A680F5B00A75B9A /* Borderly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Borderly.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Borderly/AppDelegate.h; sourceTree = "<group>"; };
@@ -74,16 +67,15 @@
 		386A2DCCE22CDA0E6496286B /* ApplePlacesModule.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = ApplePlacesModule.m; path = Borderly/ApplePlacesModule.m; sourceTree = "<group>"; };
 		3D3DD29DC9676503AF6D2B62 /* Pods-Borderly-BorderlyTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Borderly-BorderlyTests.debug.xcconfig"; path = "Target Support Files/Pods-Borderly-BorderlyTests/Pods-Borderly-BorderlyTests.debug.xcconfig"; sourceTree = "<group>"; };
 		3D96B74534A64715125C153C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		5858E59ED4FE8825B08B2118 /* ActionViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ActionViewController.swift; sourceTree = "<group>"; };
 		6E803BEFFE2DEF5701EB7FD8 /* Pods-Borderly.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Borderly.release.xcconfig"; path = "Target Support Files/Pods-Borderly/Pods-Borderly.release.xcconfig"; sourceTree = "<group>"; };
 		75961698FA278F6B6F5CBD37 /* libPods-Borderly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Borderly.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		762F110A375303A36EC5858D /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Borderly/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		902270468EF447E232FAA087 /* libPods-Borderly-BorderlyTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Borderly-BorderlyTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		9D19D7F8AC6ECA5AB9DA631C /* BorderlyAutoFill.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BorderlyAutoFill.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9E4E2C17F2D0528420E78A6E /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/AuthenticationServices.framework; sourceTree = DEVELOPER_DIR; };
-		D176774CD5ADDAC3EBBDF5CF /* CredentialProviderViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CredentialProviderViewController.swift; sourceTree = "<group>"; };
-		D4C9636D317C7CE83629846B /* BorderlyAutoFill.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = BorderlyAutoFill.entitlements; sourceTree = "<group>"; };
-		E2D0270BD32B83EE7BF84790 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F0D3FD225CAF96A4379CB86F /* BorderlyAction.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BorderlyAction.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		FEE4F6C01CC0EFE443D38115 /* Pods-Borderly-BorderlyTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Borderly-BorderlyTests.release.xcconfig"; path = "Target Support Files/Pods-Borderly-BorderlyTests/Pods-Borderly-BorderlyTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -104,13 +96,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F29472FC2EAEE14102D1F284 /* Frameworks */ = {
+		D9AEF8F11905FCB8D5B98FA0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				301C3A5E6AF341486419EA33 /* Foundation.framework in Frameworks */,
-				1D6446A4FA8FB5C0BD164221 /* AuthenticationServices.framework in Frameworks */,
-				78A5452D0AE8024F8EDBC314 /* Security.framework in Frameworks */,
+				9DC15D668DA519DB843A35FB /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -162,17 +152,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		3C794BCBBB9F843C7BAD0DE7 /* BorderlyAutoFill */ = {
-			isa = PBXGroup;
-			children = (
-				D176774CD5ADDAC3EBBDF5CF /* CredentialProviderViewController.swift */,
-				D4C9636D317C7CE83629846B /* BorderlyAutoFill.entitlements */,
-				E2D0270BD32B83EE7BF84790 /* Info.plist */,
-			);
-			name = BorderlyAutoFill;
-			path = BorderlyAutoFill;
-			sourceTree = "<group>";
-		};
 		67F920BA4F3BC257547E4455 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -181,6 +160,17 @@
 				09A2DC0977895418A8A9FE88 /* Security.framework */,
 			);
 			name = iOS;
+			sourceTree = "<group>";
+		};
+		7B68535732DDB1C0C91B34C2 /* BorderlyAction */ = {
+			isa = PBXGroup;
+			children = (
+				5858E59ED4FE8825B08B2118 /* ActionViewController.swift */,
+				06FA199203ADE1597688921C /* Action.js */,
+				762F110A375303A36EC5858D /* Info.plist */,
+			);
+			name = BorderlyAction;
+			path = BorderlyAction;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -199,7 +189,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
-				3C794BCBBB9F843C7BAD0DE7 /* BorderlyAutoFill */,
+				7B68535732DDB1C0C91B34C2 /* BorderlyAction */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -211,7 +201,7 @@
 			children = (
 				13B07F961A680F5B00A75B9A /* Borderly.app */,
 				00E356EE1AD99517003FC87E /* BorderlyTests.xctest */,
-				9D19D7F8AC6ECA5AB9DA631C /* BorderlyAutoFill.appex */,
+				F0D3FD225CAF96A4379CB86F /* BorderlyAction.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -262,33 +252,32 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				0D07DFC634494D0CBD05C22D /* [CP] Embed Pods Frameworks */,
 				357E07C9D89CC15E8760A85F /* [CP] Copy Pods Resources */,
-				2AD84D804671C0241172F08A /* Embed App Extensions */,
+				F22F1B06A420DE99A8731C7D /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				A70E37CC99E7E9E2F47D9CAD /* PBXTargetDependency */,
 			);
 			name = Borderly;
 			productName = Borderly;
 			productReference = 13B07F961A680F5B00A75B9A /* Borderly.app */;
 			productType = "com.apple.product-type.application";
 		};
-		9EEBACE79376B09274A78D37 /* BorderlyAutoFill */ = {
+		F932F8BA2B1531EC1DE85AA8 /* BorderlyAction */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 38E32C0D0472DD2FC3B4EFBC /* Build configuration list for PBXNativeTarget "BorderlyAutoFill" */;
+			buildConfigurationList = 5D5A2827AB2C8F0CBDC1EAA7 /* Build configuration list for PBXNativeTarget "BorderlyAction" */;
 			buildPhases = (
-				FCE65F63E778128B773D835B /* Sources */,
-				F29472FC2EAEE14102D1F284 /* Frameworks */,
-				ABDEA7C61BE27DFE0931DBFF /* Resources */,
+				02729008E41981D08B4BEF6A /* Sources */,
+				D9AEF8F11905FCB8D5B98FA0 /* Frameworks */,
+				BDE983387A24ED8715CC6302 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = BorderlyAutoFill;
-			productName = BorderlyAutoFill;
-			productReference = 9D19D7F8AC6ECA5AB9DA631C /* BorderlyAutoFill.appex */;
+			name = BorderlyAction;
+			productName = BorderlyAction;
+			productReference = F0D3FD225CAF96A4379CB86F /* BorderlyAction.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -323,7 +312,7 @@
 			targets = (
 				13B07F861A680F5B00A75B9A /* Borderly */,
 				00E356ED1AD99517003FC87E /* BorderlyTests */,
-				9EEBACE79376B09274A78D37 /* BorderlyAutoFill */,
+				F932F8BA2B1531EC1DE85AA8 /* BorderlyAction */,
 			);
 		};
 /* End PBXProject section */
@@ -346,10 +335,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		ABDEA7C61BE27DFE0931DBFF /* Resources */ = {
+		BDE983387A24ED8715CC6302 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7BCB3FD3F1EC6B8406B2C0C6 /* Action.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -495,6 +485,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		02729008E41981D08B4BEF6A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5C2CAA59DB0E0D4FF954D365 /* ActionViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		13B07F871A680F5B00A75B9A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -507,14 +505,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		FCE65F63E778128B773D835B /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				8BD3C738B61880EEBACEAC50 /* CredentialProviderViewController.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -522,12 +512,6 @@
 			isa = PBXTargetDependency;
 			target = 13B07F861A680F5B00A75B9A /* Borderly */;
 			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
-		};
-		A70E37CC99E7E9E2F47D9CAD /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = BorderlyAutoFill;
-			target = 9EEBACE79376B09274A78D37 /* BorderlyAutoFill */;
-			targetProxy = B0CF33A845755169CC1F8AA6 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -655,6 +639,37 @@
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
+		};
+		24FFC41AE0EEF9122C4E66A7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = BorderlyAction/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.borderly.app.BorderlyAction;
+				PRODUCT_NAME = BorderlyAction;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		32519CEC30ED8641789649EA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = BorderlyAction/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.borderly.app.BorderlyAction;
+				PRODUCT_NAME = BorderlyAction;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
 		};
 		83CBBA201A601CBA00E9B192 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -862,55 +877,6 @@
 			};
 			name = Release;
 		};
-		9C29539351CBF061CEF309DA /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = BorderlyAutoFill/BorderlyAutoFill.entitlements;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = BorderlyAutoFill/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.borderly.app.AutoFill;
-				PRODUCT_NAME = BorderlyAutoFill;
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		AC447AEF4BB6D033F483F6EF /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = BorderlyAutoFill/BorderlyAutoFill.entitlements;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = BorderlyAutoFill/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.borderly.app.AutoFill;
-				PRODUCT_NAME = BorderlyAutoFill;
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -932,11 +898,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		38E32C0D0472DD2FC3B4EFBC /* Build configuration list for PBXNativeTarget "BorderlyAutoFill" */ = {
+		5D5A2827AB2C8F0CBDC1EAA7 /* Build configuration list for PBXNativeTarget "BorderlyAction" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				AC447AEF4BB6D033F483F6EF /* Release */,
-				9C29539351CBF061CEF309DA /* Debug */,
+				24FFC41AE0EEF9122C4E66A7 /* Release */,
+				32519CEC30ED8641789649EA /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
