@@ -247,20 +247,20 @@ export function buildHeuristicFillScript(
 
   // Smart date group detection: find 3 adjacent selects near a date label
   function fillDateGroup(selects,yearVal,monthVal,dayVal){
-    var filled=0;
+    var count=0;
     for(var s=0;s<selects.length;s++){
       var sel=selects[s];
       var id=(sel.name||sel.id||'').toLowerCase();
       var label=getLabel(sel).toLowerCase();
       var hint=id+' '+label;
-      if(hint.match(/year/)){if(fillSelect(sel,yearVal))filled++;}
-      else if(hint.match(/month/)){if(fillSelect(sel,monthVal))filled++;}
-      else if(hint.match(/day/)){if(fillSelect(sel,dayVal))filled++;}
-      else if(s===0){if(fillSelect(sel,yearVal))filled++;}
-      else if(s===1){if(fillSelect(sel,monthVal))filled++;}
-      else if(s===2){if(fillSelect(sel,dayVal))filled++;}
+      if(hint.match(/year/)){if(fillSelect(sel,yearVal))count++;}
+      else if(hint.match(/month/)){if(fillSelect(sel,monthVal))count++;}
+      else if(hint.match(/day/)){if(fillSelect(sel,dayVal))count++;}
+      else if(s===0){if(fillSelect(sel,yearVal))count++;}
+      else if(s===1){if(fillSelect(sel,monthVal))count++;}
+      else if(s===2){if(fillSelect(sel,dayVal))count++;}
     }
-    return filled;
+    return count;
   }
 
   // Find date groups: look for containers with "birth"/"expiry" label + 3 selects
