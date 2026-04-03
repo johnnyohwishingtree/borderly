@@ -78,7 +78,7 @@ export const JPN_QR_DETECTION_SCRIPT = `
     if(_detected)return true;
     var isQRPage=false;
     try{var url=window.location.href.toLowerCase();if(url.indexOf('complete')>=0||url.indexOf('result')>=0||url.indexOf('qr')>=0||url.indexOf('finish')>=0||url.indexOf('receipt')>=0){isQRPage=true;}}catch(e){}
-    if(!isQRPage){try{if(document.querySelector('canvas,img[alt*="QR" i],img[src*="qr" i],[class*="qr" i],[id*="qr" i]')){isQRPage=true;}}catch(e){}}
+    if(!isQRPage){try{if(document.querySelector('canvas[width],img[alt*="QR" i],img[src*="qr" i]')){isQRPage=true;}}catch(e){}}
     if(!isQRPage){try{var bt=(document.body&&document.body.innerText?document.body.innerText:'').toLowerCase();if(bt.indexOf('qr code')>=0&&(bt.indexOf('generated')>=0||bt.indexOf('complete')>=0||bt.indexOf('success')>=0)){isQRPage=true;}}catch(e){}}
     if(!isQRPage){window.ReactNativeWebView.postMessage(JSON.stringify({type:'QR_PAGE_CHECK',isQRPage:false}));return false;}
     ${EXTRACT_QR_IMAGE_SNIPPET}
