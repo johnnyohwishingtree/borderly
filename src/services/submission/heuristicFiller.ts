@@ -26,15 +26,36 @@ export function buildFillData(
   // Passport / identity
   if (profile.passportNumber) data.passportNumber = profile.passportNumber;
   if (profile.surname) data.surname = profile.surname;
-  if (profile.givenNames) data.givenNames = profile.givenNames;
-  if (profile.givenNames) data.fullName = `${profile.givenNames} ${profile.surname}`;
+  if (profile.givenNames) {
+    data.givenNames = profile.givenNames;
+    data.fullName = `${profile.givenNames} ${profile.surname}`;
+    const nameParts = profile.givenNames.split(' ');
+    data.firstName = nameParts[0];
+    if (nameParts.length > 1) data.middleName = nameParts.slice(1).join(' ');
+  }
   if (profile.nationality) {
     data.nationality = profile.nationality;
     data.nationalityName = getCountryName(profile.nationality) || profile.nationality;
   }
-  if (profile.dateOfBirth) data.dateOfBirth = profile.dateOfBirth;
-  if (profile.gender) data.gender = profile.gender;
-  if (profile.passportExpiry) data.passportExpiry = profile.passportExpiry;
+  if (profile.dateOfBirth) {
+    data.dateOfBirth = profile.dateOfBirth;
+    const [dobY, dobM, dobD] = profile.dateOfBirth.split('-');
+    if (dobY) data.birthYear = dobY;
+    if (dobM) data.birthMonth = String(parseInt(dobM, 10));
+    if (dobD) data.birthDay = String(parseInt(dobD, 10));
+  }
+  if (profile.gender) {
+    data.gender = profile.gender;
+    const genderMap: Record<string, string> = { M: 'Male', F: 'Female', X: 'Other' };
+    data.genderDisplay = genderMap[profile.gender] || profile.gender;
+  }
+  if (profile.passportExpiry) {
+    data.passportExpiry = profile.passportExpiry;
+    const [expY, expM, expD] = profile.passportExpiry.split('-');
+    if (expY) data.expiryYear = expY;
+    if (expM) data.expiryMonth = String(parseInt(expM, 10));
+    if (expD) data.expiryDay = String(parseInt(expD, 10));
+  }
   if (profile.issuingCountry) {
     data.issuingCountry = profile.issuingCountry;
     data.issuingCountryName = getCountryName(profile.issuingCountry) || profile.issuingCountry;
@@ -100,12 +121,20 @@ const FIELD_PATTERNS: Array<{
   // Name — specific patterns before generic
   { profileKey: 'surname', patterns: /surname|family.?name|last.?name/i },
   { profileKey: 'givenNames', patterns: /given.?name|first.?name|fore.?name/i },
+  { profileKey: 'middleName', patterns: /middle.?name/i },
   { profileKey: 'fullName', patterns: /full.?name|^name$|travell?er.?name|your.?name/i },
 
   // Identity
   { profileKey: 'nationalityName', patterns: /national|citizenship/i, inputType: 'select' },
   { profileKey: 'dateOfBirth', patterns: /date.?of.?birth|birth.?date|dob|d\.?o\.?b/i, inputType: 'date' },
-  { profileKey: 'gender', patterns: /gender|sex/i, inputType: 'select' },
+  // Split Year/Month/Day date selects (Japan, Korea, etc.)
+  { profileKey: 'birthYear', patterns: /birth.*year|year.*birth|dob.*year/i, inputType: 'select' },
+  { profileKey: 'birthMonth', patterns: /birth.*month|month.*birth|dob.*month/i, inputType: 'select' },
+  { profileKey: 'birthDay', patterns: /birth.*day|day.*birth|dob.*day/i, inputType: 'select' },
+  { profileKey: 'expiryYear', patterns: /expir.*year|year.*expir/i, inputType: 'select' },
+  { profileKey: 'expiryMonth', patterns: /expir.*month|month.*expir/i, inputType: 'select' },
+  { profileKey: 'expiryDay', patterns: /expir.*day|day.*expir/i, inputType: 'select' },
+  { profileKey: 'genderDisplay', patterns: /gender|sex/i, inputType: 'select' },
 
   // Contact
   { profileKey: 'email', patterns: /e.?mail/i },
@@ -214,8 +243,43 @@ export function buildHeuristicFillScript(
     return true;
   }
 
+  // Smart date group detection: find 3 adjacent selects near a date label
+  function fillDateGroup(selects,yearVal,monthVal,dayVal){
+    var filled=0;
+    for(var s=0;s<selects.length;s++){
+      var sel=selects[s];
+      var id=(sel.name||sel.id||'').toLowerCase();
+      var label=getLabel(sel).toLowerCase();
+      var hint=id+' '+label;
+      if(hint.match(/year/)){if(fillSelect(sel,yearVal))filled++;}
+      else if(hint.match(/month/)){if(fillSelect(sel,monthVal))filled++;}
+      else if(hint.match(/day/)){if(fillSelect(sel,dayVal))filled++;}
+      else if(s===0){if(fillSelect(sel,yearVal))filled++;}
+      else if(s===1){if(fillSelect(sel,monthVal))filled++;}
+      else if(s===2){if(fillSelect(sel,dayVal))filled++;}
+    }
+    return filled;
+  }
+
+  // Find date groups: look for containers with "birth"/"expiry" label + 3 selects
+  var dateGroups=document.querySelectorAll('[class*=date],[class*=birth],[class*=expir]');
+  dateGroups.forEach(function(group){
+    var groupText=(group.textContent||'').toLowerCase();
+    var selects=group.querySelectorAll('select');
+    if(selects.length<3)return;
+    if(groupText.match(/birth|dob/)&&profileData.birthYear){
+      var f=fillDateGroup(Array.from(selects).slice(0,3),profileData.birthYear,profileData.birthMonth,profileData.birthDay);
+      if(f>0){filled+=f;total+=f;results.push({id:'dateOfBirth',status:'filled'});}
+    }
+    if(groupText.match(/expir/)&&profileData.expiryYear){
+      var f2=fillDateGroup(Array.from(selects).slice(0,3),profileData.expiryYear,profileData.expiryMonth,profileData.expiryDay);
+      if(f2>0){filled+=f2;total+=f2;results.push({id:'passportExpiry',status:'filled'});}
+    }
+  });
+
   var elements=document.querySelectorAll('input,select,textarea');
-  var filled=0,total=0,results=[];
+  var filled_count=filled,total_count=total;
+  filled=filled_count;total=total_count;
   var usedKeys={};
 
   for(var i=0;i<elements.length;i++){
