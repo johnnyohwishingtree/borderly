@@ -44,7 +44,7 @@ const EXTRACT_QR_IMAGE_SNIPPET = `
   (function(){
     try{var cs=document.querySelectorAll('canvas');for(var i=0;i<cs.length;i++){var c=cs[i];if(c.width>=50&&c.height>=50){qrImageBase64=c.toDataURL('image/png');return;}}}catch(e){}
     try{var qi=document.querySelectorAll('img[alt*="QR" i],img[src*="qr" i],img[class*="qr" i],img[id*="qr" i]');if(qi.length>0&&qi[0].src){qrImageBase64=qi[0].src;return;}}catch(e){}
-    try{var ai=document.querySelectorAll('img');for(var j=0;j<ai.length;j++){var img=ai[j];var w=img.naturalWidth||img.width;var h=img.naturalHeight||img.height;if(w>=100&&w<=600&&Math.abs(w-h)<w*0.1){qrImageBase64=img.src;return;}}}catch(e){}
+    try{var ai=document.querySelectorAll('img');for(var j=0;j<ai.length;j++){var img=ai[j];var w=img.naturalWidth||img.width;var h=img.naturalHeight||img.height;var qrRatio=Math.abs(w-h)/Math.max(w,h,1);if(!(w>=100&&w<=400&&qrRatio<0.05))continue;var hasQRContext=false;try{var p=img.parentElement;for(var k=0;k<3&&p;k++){var txt=(p.textContent||'').toLowerCase();if(/qr|barcode|scan.*code|download.*code/.test(txt)){hasQRContext=true;break;}p=p.parentElement;}}catch(e2){}if(hasQRContext){qrImageBase64=img.src;return;}}}catch(e){}
   })();
 `;
 
