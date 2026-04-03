@@ -243,6 +243,8 @@ export function buildHeuristicFillScript(
     return true;
   }
 
+  var filled=0,total=0,results=[];
+
   // Smart date group detection: find 3 adjacent selects near a date label
   function fillDateGroup(selects,yearVal,monthVal,dayVal){
     var filled=0;
@@ -278,8 +280,6 @@ export function buildHeuristicFillScript(
   });
 
   var elements=document.querySelectorAll('input,select,textarea');
-  var filled_count=filled,total_count=total;
-  filled=filled_count;total=total_count;
   var usedKeys={};
 
   for(var i=0;i<elements.length;i++){
