@@ -1,7 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { buildHeuristicFillScript, buildFillData } from '../services/submission/heuristicFiller';
 import { submissionCoordinator } from '../services/submission/submissionCoordinator';
-import { useFormStore } from '../stores/useFormStore';
 import type { PortalWebViewHandle } from '../components/submission/PortalWebView';
 import type { AutoFillFieldResult } from '../components/submission/AutoFillBanner';
 import type { TravelerProfile } from '../types/profile';
@@ -69,17 +68,8 @@ export function usePortalAutoFill({
     // Build flat profile data from profile + leg
     const profileData = buildFillData(effectiveProfile, leg);
 
-    // Merge user-entered form data (occupation, home address, city, etc.)
-    // SmartForm saves to formStore, not the profile — read it directly
-    const formState = useFormStore.getState();
-    if (formState.currentForm) {
-      formState.currentForm.sections.flatMap(s => s.fields).forEach(field => {
-        const val = field.currentValue != null ? String(field.currentValue) : '';
-        if (val && !profileData[field.id]) {
-          profileData[field.id] = val;
-        }
-      });
-    }
+    // SmartForm now persists user-entered fields back to the profile directly,
+    // so buildFillData(effectiveProfile) already has occupation, address, etc.
 
     const script = buildHeuristicFillScript(profileData);
     webViewRef.current?.injectJavaScript(script);

@@ -131,9 +131,50 @@ export function useSmartForm({ countryCodes, travelerIds, boardingPassData }: Us
     initTrip();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Fields that should persist back to the TravelerProfile
+  const PROFILE_FIELDS: Record<string, string> = {
+    occupation: 'occupation',
+    homeCountry: 'homeAddress.country',
+    homeCity: 'homeAddress.city',
+    homeAddress: 'homeAddress.line1',
+    addressLine1: 'homeAddress.line1',
+    city: 'homeAddress.city',
+    state: 'homeAddress.state',
+    postalCode: 'homeAddress.postalCode',
+    addressCountry: 'homeAddress.country',
+    email: 'email',
+    phoneNumber: 'phoneNumber',
+    maritalStatus: 'maritalStatus',
+    purposeOfVisit: 'purposeOfVisit',
+  };
+
   const handleFieldChange = useCallback((formData: Record<string, unknown>) => {
     for (const [fieldId, value] of Object.entries(formData)) {
       formStore.updateField(fieldId, value);
+    }
+
+    // Persist profile-relevant fields back to the TravelerProfile
+    const profileUpdates: Record<string, unknown> = {};
+    for (const [fieldId, value] of Object.entries(formData)) {
+      const profilePath = PROFILE_FIELDS[fieldId];
+      if (profilePath && value !== undefined && value !== '' && value !== null) {
+        if (profilePath.includes('.')) {
+          // Nested field (e.g., homeAddress.city)
+          const [parent, child] = profilePath.split('.');
+          if (!profileUpdates[parent]) {
+            const existing = profileStore.currentProfile;
+            profileUpdates[parent] = { ...(existing as any)?.[parent] };
+          }
+          (profileUpdates[parent] as Record<string, unknown>)[child] = value;
+        } else {
+          profileUpdates[profilePath] = value;
+        }
+      }
+    }
+    if (Object.keys(profileUpdates).length > 0) {
+      profileStore.updateProfile(profileUpdates).catch(() => {
+        // Non-critical — profile update failure shouldn't break form filling
+      });
     }
 
     // Recalculate remaining fields so progress updates in real time
