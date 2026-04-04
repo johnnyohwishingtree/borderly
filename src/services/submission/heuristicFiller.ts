@@ -127,13 +127,9 @@ const FIELD_PATTERNS: Array<{
   // Identity
   { profileKey: 'nationalityName', patterns: /national|citizenship/i, inputType: 'select' },
   { profileKey: 'dateOfBirth', patterns: /date.?of.?birth|birth.?date|dob|d\.?o\.?b/i, inputType: 'date' },
-  // Split Year/Month/Day date selects (Japan, Korea, etc.)
-  { profileKey: 'birthYear', patterns: /birth.*year|year.*birth|dob.*year/i, inputType: 'select' },
-  { profileKey: 'birthMonth', patterns: /birth.*month|month.*birth|dob.*month/i, inputType: 'select' },
-  { profileKey: 'birthDay', patterns: /birth.*day|day.*birth|dob.*day/i, inputType: 'select' },
-  { profileKey: 'expiryYear', patterns: /expir.*year|year.*expir/i, inputType: 'select' },
-  { profileKey: 'expiryMonth', patterns: /expir.*month|month.*expir/i, inputType: 'select' },
-  { profileKey: 'expiryDay', patterns: /expir.*day|day.*expir/i, inputType: 'select' },
+  // Note: split Year/Month/Day date selects are handled by fillDateGroup
+  // which walks the DOM tree — individual patterns removed to avoid
+  // usedKeys conflicts when portals reuse the same IDs/labels.
   { profileKey: 'genderDisplay', patterns: /gender|sex/i, inputType: 'select' },
 
   // Contact
@@ -151,7 +147,7 @@ const FIELD_PATTERNS: Array<{
   { profileKey: 'city', patterns: /^city$|town|home.?city/i },
   { profileKey: 'state', patterns: /^state$|province|region|home.?state/i },
   { profileKey: 'postalCode', patterns: /post.?code|zip.?code|postal/i },
-  { profileKey: 'addressCountryName', patterns: /home.?country|country.?(of)?.?resid|address.?country/i, inputType: 'select' },
+  { profileKey: 'addressCountryName', patterns: /home.?country|country.?(of)?.?resid|address.*country/i, inputType: 'select' },
 
   // Place of birth (map to nationality as a reasonable default for many portals)
   { profileKey: 'nationalityName', patterns: /place.?of.?birth|birth.?place|born.?in/i, inputType: 'select' },

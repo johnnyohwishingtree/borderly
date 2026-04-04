@@ -74,6 +74,7 @@ export function usePortalAutoFill({
   const handleAutoFillResult = useCallback((msg: Record<string, unknown>) => {
     const total = typeof msg.total === 'number' ? msg.total : 0;
     const filled = typeof msg.filled === 'number' ? msg.filled : 0;
+
     if (total > 0) {
       const rawResults = Array.isArray(msg.results) ? msg.results : [];
       const fieldResults: AutoFillFieldResult[] = rawResults
