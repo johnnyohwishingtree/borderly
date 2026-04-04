@@ -254,19 +254,38 @@ export function buildHeuristicFillScript(
     return false;
   }
 
+  function identifyDateSelect(sel,index){
+    var id=(sel.name||sel.id||'').toLowerCase();
+    var label=getLabel(sel).toLowerCase();
+    var hint=id+' '+label;
+    if(hint.match(/year/))return 'year';
+    if(hint.match(/month/))return 'month';
+    if(hint.match(/day/))return 'day';
+    // Fallback by position: Year, Month, Day
+    return ['year','month','day'][index]||'unknown';
+  }
+
   function fillDateGroup(selects,yearVal,monthVal,dayVal){
     var count=0;
+    var yearSel=null,monthSel=null,daySel=null;
     for(var s=0;s<selects.length;s++){
-      var sel=selects[s];
-      var id=(sel.name||sel.id||'').toLowerCase();
-      var label=getLabel(sel).toLowerCase();
-      var hint=id+' '+label;
-      if(hint.match(/year/)){if(tryFillSelect(sel,yearVal))count++;}
-      else if(hint.match(/month/)){if(tryFillSelect(sel,monthVal))count++;}
-      else if(hint.match(/day/)){if(tryFillSelect(sel,dayVal))count++;}
-      else if(s===0){if(tryFillSelect(sel,yearVal))count++;}
-      else if(s===1){if(tryFillSelect(sel,monthVal))count++;}
-      else if(s===2){if(tryFillSelect(sel,dayVal))count++;}
+      var role=identifyDateSelect(selects[s],s);
+      if(role==='year')yearSel=selects[s];
+      else if(role==='month')monthSel=selects[s];
+      else if(role==='day')daySel=selects[s];
+    }
+    // Fill Year first, then Month (may populate Day options), then Day with delay
+    if(yearSel&&tryFillSelect(yearSel,yearVal))count++;
+    if(monthSel&&tryFillSelect(monthSel,monthVal))count++;
+    // Day options may be dynamically populated after Year+Month change
+    // Try immediately, then retry after 500ms
+    if(daySel){
+      if(tryFillSelect(daySel,dayVal)){count++;}
+      else{
+        var ds=daySel,dv=dayVal;
+        setTimeout(function(){tryFillSelect(ds,dv);},500);
+        count++;
+      }
     }
     return count;
   }
