@@ -144,7 +144,7 @@ const FIELD_PATTERNS: Array<{
   // Address
   { profileKey: 'addressLine1', patterns: /address.?(line)?.?1|street|address$/i },
   { profileKey: 'addressLine2', patterns: /address.?(line)?.?2|apt|suite|unit/i },
-  { profileKey: 'city', patterns: /^city$|town|home.?city/i },
+  { profileKey: 'city', patterns: /^city$|town|home.?city|address.*city/i },
   { profileKey: 'state', patterns: /^state$|province|region|home.?state/i },
   { profileKey: 'postalCode', patterns: /post.?code|zip.?code|postal/i },
   { profileKey: 'addressCountryName', patterns: /home.?country|country.?(of)?.?resid|address.*country/i, inputType: 'select' },
