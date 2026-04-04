@@ -219,19 +219,84 @@ export function buildHeuristicFillScript(
     return null;
   }
 
+  // Alternative representations for smart matching
+  var ALTERNATIVES={
+    // Country codes → common names (portals use different formats)
+    'usa':['united states','us','united states of america','u.s.a.','america'],
+    'gbr':['united kingdom','uk','great britain','gb','england'],
+    'jpn':['japan','jp'],
+    'sgp':['singapore','sg'],
+    'mys':['malaysia','my'],
+    'tha':['thailand','th'],
+    'vnm':['vietnam','vn','viet nam'],
+    'aus':['australia','au'],
+    'nzl':['new zealand','nz'],
+    'can':['canada','ca'],
+    'kor':['south korea','kr','korea','republic of korea'],
+    'ind':['india','in'],
+    'idn':['indonesia','id'],
+    'phl':['philippines','ph'],
+    'afg':['afghanistan','af'],
+    'chn':['china','cn'],
+    'deu':['germany','de'],
+    'fra':['france','fr'],
+    'ita':['italy','it'],
+    'bra':['brazil','br'],
+    // Gender
+    'm':['male','man','masculine','1'],
+    'f':['female','woman','feminine','2'],
+    'x':['other','non-binary','unspecified','3'],
+    // Common occupation codes
+    'company_employee':['company employee','office worker','employee','salaried'],
+    'self_employed':['self-employed','self employed','freelance','business owner'],
+    'student':['student','pupil','scholar'],
+    'government_employee':['government employee','civil servant','public servant'],
+    'retired':['retired','retiree','pensioner'],
+  };
+
+  function getAlternatives(value){
+    var vl=value.toLowerCase().replace(/[\s_-]+/g,'_');
+    var alts=ALTERNATIVES[vl]||ALTERNATIVES[value.toLowerCase()]||[];
+    // Also try without underscores/hyphens
+    var stripped=vl.replace(/_/g,' ');
+    if(stripped!==vl)alts=alts.concat([stripped]);
+    return alts;
+  }
+
   function fillSelect(el,value){
     var opts=Array.from(el.options||[]);
     var vl=value.toLowerCase();
-    var match=opts.find(function(o){return o.value.toLowerCase()===vl||o.text.toLowerCase()===vl;})
-      ||opts.find(function(o){return o.value.toLowerCase().indexOf(vl)>=0||o.text.toLowerCase().indexOf(vl)>=0;})
-      ||opts.find(function(o){return vl.indexOf(o.value.toLowerCase())>=0||vl.indexOf(o.text.toLowerCase())>=0;});
+    // 1. Exact match on value or text
+    var match=opts.find(function(o){return o.value.toLowerCase()===vl||o.text.toLowerCase().trim()===vl;});
+    // 2. Partial/contains match
+    if(!match)match=opts.find(function(o){return o.value.toLowerCase().indexOf(vl)>=0||o.text.toLowerCase().indexOf(vl)>=0;});
+    if(!match)match=opts.find(function(o){return vl.indexOf(o.value.toLowerCase())>=0||vl.indexOf(o.text.toLowerCase().trim())>=0;});
+    // 3. Try alternative representations
+    if(!match){
+      var alts=getAlternatives(value);
+      for(var a=0;a<alts.length&&!match;a++){
+        var alt=alts[a].toLowerCase();
+        match=opts.find(function(o){return o.value.toLowerCase()===alt||o.text.toLowerCase().trim()===alt;})
+          ||opts.find(function(o){return o.text.toLowerCase().indexOf(alt)>=0||o.value.toLowerCase().indexOf(alt)>=0;});
+      }
+    }
     if(match){el.value=match.value;el.dispatchEvent(new Event('change',{bubbles:true}));return true;}
     return false;
   }
 
   function fillInput(el,value){
+    // For text inputs, if value looks like a code (2-3 uppercase letters),
+    // try to use the display name instead
+    var fillValue=value;
+    if(value.length<=3&&value===value.toUpperCase()){
+      var alts=getAlternatives(value);
+      if(alts.length>0){
+        // Use first alternative, capitalize first letter of each word
+        fillValue=alts[0].replace(/\b\w/g,function(c){return c.toUpperCase();});
+      }
+    }
     var desc=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value');
-    if(desc&&desc.set){desc.set.call(el,value);}else{el.value=value;}
+    if(desc&&desc.set){desc.set.call(el,fillValue);}else{el.value=fillValue;}
     el.dispatchEvent(new Event('input',{bubbles:true}));
     el.dispatchEvent(new Event('change',{bubbles:true}));
     el.style.outline='2px solid #3B82F6';

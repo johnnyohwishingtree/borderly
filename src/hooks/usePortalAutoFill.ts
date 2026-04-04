@@ -67,10 +67,6 @@ export function usePortalAutoFill({
 
     // Build flat profile data from profile + leg
     const profileData = buildFillData(effectiveProfile, leg);
-
-    // SmartForm now persists user-entered fields back to the profile directly,
-    // so buildFillData(effectiveProfile) already has occupation, address, etc.
-
     const script = buildHeuristicFillScript(profileData);
     webViewRef.current?.injectJavaScript(script);
   }, [effectiveProfile, leg, schema, selectedProfileId, lastUsedProfileRef, webViewRef]);
