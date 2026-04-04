@@ -163,11 +163,6 @@ export function usePortalSubmission() {
       }
 
       webViewRef.current?.injectJavaScript(submissionCoordinator.getPageTypeCheckScript());
-
-      const qrScript = submissionCoordinator.getQRDetectionScript(countryCode);
-      if (qrScript) {
-        webViewRef.current?.injectJavaScript(qrScript);
-      }
     },
     [schema, countryCode, onLoadComplete, autoLogin],
   );
@@ -215,22 +210,7 @@ export function usePortalSubmission() {
           return;
         }
 
-        if (msgType === 'QR_PAGE_DETECTED' && msg.isQRPage === true) {
-          const newPayload: QRPageDetectedPayload = {
-            countryCode:
-              typeof msg.countryCode === 'string' ? msg.countryCode : countryCode,
-            qrImageBase64:
-              typeof msg.qrImageBase64 === 'string' ? msg.qrImageBase64 : null,
-            pageUrl: typeof msg.pageUrl === 'string' ? msg.pageUrl : '',
-          };
-          if (msg.confirmationNumber !== undefined) {
-            newPayload.confirmationNumber =
-              typeof msg.confirmationNumber === 'string'
-                ? msg.confirmationNumber
-                : null;
-          }
-          setQrPayload(newPayload);
-        }
+        // QR detection removed — was producing false positives on every page
       } catch {
         // Not a Borderly message — ignore
       }

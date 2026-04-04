@@ -13,7 +13,6 @@ import {
 } from 'lucide-react-native';
 import { PortalWebView } from '@/components/submission/PortalWebView';
 import { AutoFillBanner } from '@/components/submission/AutoFillBanner';
-import { QRSaveOverlay } from '@/components/submission/QRSaveOverlay';
 import { AutoFillPill } from '@/components/submission/AutoFillPill';
 import { CredentialPrompt } from '@/components/submission/CredentialPrompt';
 import { usePortalSubmission } from '@/hooks/usePortalSubmission';
@@ -23,7 +22,7 @@ export default function PortalSubmissionScreen() {
   const {
     route: { url },
     webViewRef,
-    state: { navState, qrPayload, pageType, pillDismissed },
+    state: { navState, pageType, pillDismissed },
     derived: { schema, loadError },
     autoLogin,
     autoFill,
@@ -32,8 +31,7 @@ export default function PortalSubmissionScreen() {
       handleWebViewError, handleGoBack, handleGoForward, handleRefresh,
     },
     actions: {
-      handleClose, handleSaveQR,
-      handleOpenWallet, dismissPill, dismissQrPayload, clearLoadError,
+      handleClose, dismissPill, clearLoadError,
     },
   } = usePortalSubmission();
 
@@ -232,14 +230,6 @@ export default function PortalSubmissionScreen() {
         )}
       </View>
 
-      {/* QR save overlay */}
-      <QRSaveOverlay
-        payload={qrPayload}
-        onSave={handleSaveQR}
-        onDismiss={dismissQrPayload}
-        onOpenWallet={handleOpenWallet}
-        testID={PORTAL_SUBMISSION_IDS.qrSaveOverlay.id}
-      />
     </SafeAreaView>
   );
 }
