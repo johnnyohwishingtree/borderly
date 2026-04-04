@@ -246,6 +246,14 @@ export function buildHeuristicFillScript(
   var filled=0,total=0,results=[];
 
   // Smart date group detection: find 3 adjacent selects near a date label
+  function tryFillSelect(sel,val){
+    // Try exact, then zero-padded, then unpadded
+    if(fillSelect(sel,val))return true;
+    if(val.length===1&&fillSelect(sel,'0'+val))return true;
+    if(val.length===2&&val[0]==='0'&&fillSelect(sel,val[1]))return true;
+    return false;
+  }
+
   function fillDateGroup(selects,yearVal,monthVal,dayVal){
     var count=0;
     for(var s=0;s<selects.length;s++){
@@ -253,31 +261,52 @@ export function buildHeuristicFillScript(
       var id=(sel.name||sel.id||'').toLowerCase();
       var label=getLabel(sel).toLowerCase();
       var hint=id+' '+label;
-      if(hint.match(/year/)){if(fillSelect(sel,yearVal))count++;}
-      else if(hint.match(/month/)){if(fillSelect(sel,monthVal))count++;}
-      else if(hint.match(/day/)){if(fillSelect(sel,dayVal))count++;}
-      else if(s===0){if(fillSelect(sel,yearVal))count++;}
-      else if(s===1){if(fillSelect(sel,monthVal))count++;}
-      else if(s===2){if(fillSelect(sel,dayVal))count++;}
+      if(hint.match(/year/)){if(tryFillSelect(sel,yearVal))count++;}
+      else if(hint.match(/month/)){if(tryFillSelect(sel,monthVal))count++;}
+      else if(hint.match(/day/)){if(tryFillSelect(sel,dayVal))count++;}
+      else if(s===0){if(tryFillSelect(sel,yearVal))count++;}
+      else if(s===1){if(tryFillSelect(sel,monthVal))count++;}
+      else if(s===2){if(tryFillSelect(sel,dayVal))count++;}
     }
     return count;
   }
 
-  // Find date groups: look for containers with "birth"/"expiry" label + 3 selects
-  var dateGroups=document.querySelectorAll('[class*=date],[class*=birth],[class*=expir]');
-  dateGroups.forEach(function(group){
-    var groupText=(group.textContent||'').toLowerCase();
-    var selects=group.querySelectorAll('select');
-    if(selects.length<3)return;
-    if(groupText.match(/birth|dob/)&&profileData.birthYear){
-      var f=fillDateGroup(Array.from(selects).slice(0,3),profileData.birthYear,profileData.birthMonth,profileData.birthDay);
-      if(f>0){filled+=f;total+=f;results.push({id:'dateOfBirth',status:'filled'});}
+  // Smart date group detection: walk up from each select to find groups of 3
+  // near date-related text (birth, expiry, arrival, departure)
+  var allSelects=document.querySelectorAll('select');
+  var processedSelects=new Set();
+  for(var si=0;si<allSelects.length;si++){
+    var sel=allSelects[si];
+    if(processedSelects.has(sel))continue;
+    // Walk up to find a container with 3+ selects and date text
+    var container=sel.parentElement;
+    for(var up=0;up<5&&container;up++){
+      var containerSelects=container.querySelectorAll('select');
+      var containerText=(container.textContent||'').toLowerCase();
+      if(containerSelects.length>=3){
+        var sels=Array.from(containerSelects).slice(0,3);
+        var anyEmpty=sels.some(function(s){return !s.value||s.value==='';});
+        if(!anyEmpty)break;
+        if(containerText.match(/birth|dob|date of birth/)&&profileData.birthYear){
+          var fb=fillDateGroup(sels,profileData.birthYear,profileData.birthMonth,profileData.birthDay);
+          if(fb>0){filled+=fb;total+=fb;results.push({id:'dateOfBirth',status:'filled'});sels.forEach(function(s){processedSelects.add(s);});}
+          break;
+        }
+        if(containerText.match(/expir|date of expiry|passport.*expir/)&&profileData.expiryYear){
+          var fe=fillDateGroup(sels,profileData.expiryYear,profileData.expiryMonth,profileData.expiryDay);
+          if(fe>0){filled+=fe;total+=fe;results.push({id:'passportExpiry',status:'filled'});sels.forEach(function(s){processedSelects.add(s);});}
+          break;
+        }
+        if(containerText.match(/arrival|entry.*date/)&&profileData.arrivalDate){
+          var parts=profileData.arrivalDate.split('-');
+          if(parts.length===3){var fa=fillDateGroup(sels,parts[0],String(parseInt(parts[1],10)),String(parseInt(parts[2],10)));if(fa>0){filled+=fa;total+=fa;results.push({id:'arrivalDate',status:'filled'});sels.forEach(function(s){processedSelects.add(s);});}}
+          break;
+        }
+        break;
+      }
+      container=container.parentElement;
     }
-    if(groupText.match(/expir/)&&profileData.expiryYear){
-      var f2=fillDateGroup(Array.from(selects).slice(0,3),profileData.expiryYear,profileData.expiryMonth,profileData.expiryDay);
-      if(f2>0){filled+=f2;total+=f2;results.push({id:'passportExpiry',status:'filled'});}
-    }
-  });
+  }
 
   var elements=document.querySelectorAll('input,select,textarea');
   var usedKeys={};
