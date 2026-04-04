@@ -65,11 +65,28 @@ export function usePortalAutoFill({
 
     lastUsedProfileRef.current = selectedProfileId;
 
-    // Build flat profile data and generate heuristic fill script
+    // Build flat profile data from profile + leg
     const profileData = buildFillData(effectiveProfile, leg);
+
+    // Merge form-filled data (occupation, home address, city, etc.)
+    // that the user entered in SmartForm but isn't in the profile
+    if (schema && leg) {
+      const filledForm = submissionCoordinator.generateFilledForm(effectiveProfile, leg, schema);
+      if (filledForm) {
+        filledForm.sections.flatMap(s => s.fields).forEach(field => {
+          if (field.currentValue && field.source !== 'empty') {
+            const val = String(field.currentValue);
+            if (val && !profileData[field.id]) {
+              profileData[field.id] = val;
+            }
+          }
+        });
+      }
+    }
+
     const script = buildHeuristicFillScript(profileData);
     webViewRef.current?.injectJavaScript(script);
-  }, [effectiveProfile, leg, selectedProfileId, lastUsedProfileRef, webViewRef]);
+  }, [effectiveProfile, leg, schema, selectedProfileId, lastUsedProfileRef, webViewRef]);
 
   const handleAutoFillResult = useCallback((msg: Record<string, unknown>) => {
     const total = typeof msg.total === 'number' ? msg.total : 0;
