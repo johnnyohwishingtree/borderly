@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { buildHeuristicFillScript, buildFillData } from '../services/submission/heuristicFiller';
 import { submissionCoordinator } from '../services/submission/submissionCoordinator';
+import { useFormStore } from '../stores/useFormStore';
 import type { PortalWebViewHandle } from '../components/submission/PortalWebView';
 import type { AutoFillFieldResult } from '../components/submission/AutoFillBanner';
 import type { TravelerProfile } from '../types/profile';
@@ -68,20 +69,16 @@ export function usePortalAutoFill({
     // Build flat profile data from profile + leg
     const profileData = buildFillData(effectiveProfile, leg);
 
-    // Merge form-filled data (occupation, home address, city, etc.)
-    // that the user entered in SmartForm but isn't in the profile
-    if (schema && leg) {
-      const filledForm = submissionCoordinator.generateFilledForm(effectiveProfile, leg, schema);
-      if (filledForm) {
-        filledForm.sections.flatMap(s => s.fields).forEach(field => {
-          if (field.currentValue && field.source !== 'empty') {
-            const val = String(field.currentValue);
-            if (val && !profileData[field.id]) {
-              profileData[field.id] = val;
-            }
-          }
-        });
-      }
+    // Merge user-entered form data (occupation, home address, city, etc.)
+    // SmartForm saves to formStore, not the profile — read it directly
+    const formState = useFormStore.getState();
+    if (formState.currentForm) {
+      formState.currentForm.sections.flatMap(s => s.fields).forEach(field => {
+        const val = field.currentValue != null ? String(field.currentValue) : '';
+        if (val && !profileData[field.id]) {
+          profileData[field.id] = val;
+        }
+      });
     }
 
     const script = buildHeuristicFillScript(profileData);
