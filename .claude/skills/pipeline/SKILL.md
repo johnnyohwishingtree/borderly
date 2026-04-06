@@ -1,7 +1,7 @@
 ---
 name: pipeline
 description: Autonomous spec-driven pipeline — find skipped spec tests, implement them, merge
-argument-hint: "[--test <path>]"
+argument-hint: "[--test <path>] [auto]"
 ---
 
 # /pipeline — Spec-Driven Pipeline
@@ -164,9 +164,25 @@ After an audit writes new skipped tests, go back to **Step 2**.
 
 If all audits produce nothing → the system is healthy. Stop.
 
+## Modes
+
+- **Single run** (default, or `--test <path>`): Execute steps in main context, stop after one cycle.
+- **Auto mode** (`auto` argument): Spawn each unit of work as a fresh Agent subagent with `isolation: "worktree"`. After each agent completes, merge its branch, pick the next item. Stops when no work remains. If session is ending, schedules a cron one-shot to continue.
+
+## Auto Mode Details
+
+In auto mode, each spec file or backlog item is delegated to an Agent subagent:
+- Fresh context per task (no context bloat)
+- `isolation: "worktree"` prevents conflicts
+- Agents run sequentially (wait for completion, merge, then next)
+- No cron needed within a session — agents spawn immediately
+- Cron one-shot only used to survive session restarts
+
 ## Guardrails
 
 - Never push to master directly — always go through a PR
 - If 6 verify attempts fail, re-skip the test and push WIP
 - One skipped test at a time — don't try to resolve multiple in one branch
 - Read the test JSDoc before implementing — understand intent, not just assertions
+- **Never idle-loop** — if audits find nothing, stop. Do not reschedule, do not report idle.
+- Auto mode agents use `isolation: "worktree"` to avoid conflicts
