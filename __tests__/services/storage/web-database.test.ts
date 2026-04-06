@@ -18,7 +18,7 @@ import { resolve } from 'path';
 
 const ROOT = resolve(__dirname, '../../..');
 
-test.skip('web database implementation exists', () => {
+test('web database implementation exists', () => {
   const paths = [
     'src/services/storage/database.web.ts',
     'src/services/storage/webDatabase.ts',
@@ -27,7 +27,7 @@ test.skip('web database implementation exists', () => {
   expect(found).toBe(true);
 });
 
-test.skip('web database uses IndexedDB for persistence', () => {
+test('web database uses IndexedDB for persistence', () => {
   const paths = [
     'src/services/storage/database.web.ts',
     'src/services/storage/webDatabase.ts',
@@ -39,7 +39,7 @@ test.skip('web database uses IndexedDB for persistence', () => {
   expect(content).toMatch(/indexedDB|IDBDatabase|idb/i);
 });
 
-test.skip('web database implements trip CRUD operations', () => {
+test('web database implements trip CRUD operations', () => {
   const paths = [
     'src/services/storage/database.web.ts',
     'src/services/storage/webDatabase.ts',

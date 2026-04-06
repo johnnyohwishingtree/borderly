@@ -23,11 +23,11 @@ import { resolve } from 'path';
 
 const ROOT = resolve(__dirname, '../../..');
 
-test.skip('web storage barrel exists at src/services/storage/index.web.ts', () => {
+test('web storage barrel exists at src/services/storage/index.web.ts', () => {
   expect(existsSync(resolve(ROOT, 'src/services/storage/index.web.ts'))).toBe(true);
 });
 
-test.skip('web storage barrel exports same named symbols as native barrel', () => {
+test('web storage barrel exports same named symbols as native barrel', () => {
   const webBarrel = readFileSync(resolve(ROOT, 'src/services/storage/index.web.ts'), 'utf-8');
 
   // Must export the core service singletons (same as index.ts)
@@ -37,7 +37,7 @@ test.skip('web storage barrel exports same named symbols as native barrel', () =
   }
 });
 
-test.skip('webpack Vercel build does not replace storage barrel', () => {
+test('webpack Vercel build does not replace storage barrel', () => {
   const webpackConfig = readFileSync(resolve(ROOT, 'webpack.config.js'), 'utf-8');
 
   // NormalModuleReplacementPlugin for storage should be conditional (E2E only, not Vercel)

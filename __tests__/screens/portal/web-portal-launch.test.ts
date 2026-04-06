@@ -23,35 +23,35 @@ import { resolve } from 'path';
 
 const ROOT = resolve(__dirname, '../../..');
 
-test.skip('portal screen has web-specific launch behavior', () => {
+test('portal screen has web-specific launch behavior', () => {
   // Either a .web.tsx variant exists, or the main screen checks Platform.OS
   const webVariant = existsSync(
-    resolve(ROOT, 'src/screens/submission/PortalSubmission/PortalSubmissionScreen.web.tsx')
+    resolve(ROOT, 'src/screens/trips/PortalSubmissionScreen/PortalSubmissionScreen.web.tsx')
   );
   if (webVariant) {
     // Web variant handles opening in new tab
     const content = readFileSync(
-      resolve(ROOT, 'src/screens/submission/PortalSubmission/PortalSubmissionScreen.web.tsx'),
+      resolve(ROOT, 'src/screens/trips/PortalSubmissionScreen/PortalSubmissionScreen.web.tsx'),
       'utf-8',
     );
     expect(content).toMatch(/window\.open|Linking\.openURL|openURL/);
   } else {
     // Main screen has platform detection
     const content = readFileSync(
-      resolve(ROOT, 'src/screens/submission/PortalSubmission/PortalSubmissionScreen.tsx'),
+      resolve(ROOT, 'src/screens/trips/PortalSubmissionScreen/PortalSubmissionScreen.tsx'),
       'utf-8',
     );
     expect(content).toMatch(/Platform\.OS.*web|isWeb/);
   }
 });
 
-test.skip('web portal provides auto-fill data to user', () => {
+test('web portal provides auto-fill data to user', () => {
   // On web, auto-fill can't inject into a cross-origin page.
   // Must offer: bookmarklet, clipboard copy of fill script, or browser extension.
   // Check that the heuristic filler script can be exported/copied.
   const paths = [
-    'src/screens/submission/PortalSubmission/PortalSubmissionScreen.web.tsx',
-    'src/screens/submission/PortalSubmission/PortalSubmissionScreen.tsx',
+    'src/screens/trips/PortalSubmissionScreen/PortalSubmissionScreen.web.tsx',
+    'src/screens/trips/PortalSubmissionScreen/PortalSubmissionScreen.tsx',
     'src/components/submission/WebAutoFillHelper.tsx',
   ];
   const found = paths.find(p => existsSync(resolve(ROOT, p)));

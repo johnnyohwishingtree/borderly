@@ -295,7 +295,7 @@ export function usePortalSubmission() {
       pageType,
       pillDismissed,
     },
-    derived: { schema, totalSteps, progressPercent, currentStepFields, loadError },
+    derived: { schema, totalSteps, progressPercent, currentStepFields, loadError, effectiveProfile, leg },
     profiles: { availableProfiles, selectedProfileId, handleProfileChange },
     autoLogin,
     autoFill,

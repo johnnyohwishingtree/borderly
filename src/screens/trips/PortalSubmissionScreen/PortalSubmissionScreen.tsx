@@ -4,6 +4,8 @@ import {
   Pressable,
   SafeAreaView,
   StyleSheet,
+  Platform,
+  Linking,
 } from 'react-native';
 import {
   ArrowLeft,
@@ -15,15 +17,19 @@ import { PortalWebView } from '@/components/submission/PortalWebView';
 import { AutoFillBanner } from '@/components/submission/AutoFillBanner';
 import { AutoFillPill } from '@/components/submission/AutoFillPill';
 import { CredentialPrompt } from '@/components/submission/CredentialPrompt';
+import { WebAutoFillHelper } from '@/components/submission/WebAutoFillHelper';
+import { buildFillData, buildHeuristicFillScript } from '@/services/submission/heuristicFiller';
 import { usePortalSubmission } from '@/hooks/usePortalSubmission';
 import { PORTAL_SUBMISSION_IDS } from './testIDs';
+
+const isWeb = Platform.OS === 'web';
 
 export default function PortalSubmissionScreen() {
   const {
     route: { url },
     webViewRef,
     state: { navState, pageType, pillDismissed },
-    derived: { schema, loadError },
+    derived: { schema, loadError, effectiveProfile, leg },
     autoLogin,
     autoFill,
     webViewHandlers: {
@@ -167,68 +173,79 @@ export default function PortalSubmissionScreen() {
         />
       )}
 
-      {/* WebView */}
-      <View className="flex-1">
-        <PortalWebView
-          ref={webViewRef}
-          url={url}
-          onNavigationChange={handleNavigationChange}
-          onPageLoad={handlePageLoad}
-          onLoadStart={handleLoadStart}
-          onMessage={handleMessage}
-          onError={handleWebViewError}
-          testID={PORTAL_SUBMISSION_IDS.portalWebview.id}
+      {/* Web: open portal in new tab + clipboard auto-fill */}
+      {isWeb ? (
+        <WebAutoFillHelper
+          fillScript={effectiveProfile
+            ? buildHeuristicFillScript(buildFillData(effectiveProfile, leg))
+            : ''}
+          portalName={schema?.portalName ?? 'Government Portal'}
+          onOpenPortal={() => Linking.openURL(url)}
         />
-
-        {(pageType === 'form' || pageType === 'captcha') && !pillDismissed && (
-          <AutoFillPill
-            onAutoFill={autoFill.handleAutoFill}
-            onDismiss={dismissPill}
-            testID={PORTAL_SUBMISSION_IDS.autofillPill.id}
+      ) : (
+        /* Native: embedded WebView */
+        <View className="flex-1">
+          <PortalWebView
+            ref={webViewRef}
+            url={url}
+            onNavigationChange={handleNavigationChange}
+            onPageLoad={handlePageLoad}
+            onLoadStart={handleLoadStart}
+            onMessage={handleMessage}
+            onError={handleWebViewError}
+            testID={PORTAL_SUBMISSION_IDS.portalWebview.id}
           />
-        )}
 
-        {/* Error overlay */}
-        {loadError !== null && (
-          <View
-            style={{
-              ...StyleSheet.absoluteFillObject,
-              backgroundColor: 'rgba(107, 114, 128, 0.92)',
-            }}
-            className="justify-center items-center p-6"
-            testID={PORTAL_SUBMISSION_IDS.loadErrorOverlay.id}
-          >
-            <View className="bg-surface rounded-xl p-6 w-full max-w-sm">
-              <Text className="text-base font-semibold text-primary mb-2">
-                Unable to Load Portal
-              </Text>
-              <Text className="text-sm text-secondary mb-5 leading-5">
-                {loadError}
-              </Text>
-              <Pressable
-                onPress={() => {
-                  clearLoadError();
-                  handleRefresh();
-                }}
-                style={({ pressed }) => ({
-                  backgroundColor: '#3B82F6',
-                  borderRadius: 8,
-                  paddingVertical: 10,
-                  paddingHorizontal: 16,
-                  marginBottom: 10,
-                  opacity: pressed ? 0.8 : 1,
-                })}
-                accessibilityLabel="Try again"
-                testID={PORTAL_SUBMISSION_IDS.errorTryAgainButton.id}
-              >
-                <Text className="text-white font-semibold text-center">
-                  Try Again
+          {(pageType === 'form' || pageType === 'captcha') && !pillDismissed && (
+            <AutoFillPill
+              onAutoFill={autoFill.handleAutoFill}
+              onDismiss={dismissPill}
+              testID={PORTAL_SUBMISSION_IDS.autofillPill.id}
+            />
+          )}
+
+          {/* Error overlay */}
+          {loadError !== null && (
+            <View
+              style={{
+                ...StyleSheet.absoluteFillObject,
+                backgroundColor: 'rgba(107, 114, 128, 0.92)',
+              }}
+              className="justify-center items-center p-6"
+              testID={PORTAL_SUBMISSION_IDS.loadErrorOverlay.id}
+            >
+              <View className="bg-surface rounded-xl p-6 w-full max-w-sm">
+                <Text className="text-base font-semibold text-primary mb-2">
+                  Unable to Load Portal
                 </Text>
-              </Pressable>
+                <Text className="text-sm text-secondary mb-5 leading-5">
+                  {loadError}
+                </Text>
+                <Pressable
+                  onPress={() => {
+                    clearLoadError();
+                    handleRefresh();
+                  }}
+                  style={({ pressed }) => ({
+                    backgroundColor: '#3B82F6',
+                    borderRadius: 8,
+                    paddingVertical: 10,
+                    paddingHorizontal: 16,
+                    marginBottom: 10,
+                    opacity: pressed ? 0.8 : 1,
+                  })}
+                  accessibilityLabel="Try again"
+                  testID={PORTAL_SUBMISSION_IDS.errorTryAgainButton.id}
+                >
+                  <Text className="text-white font-semibold text-center">
+                    Try Again
+                  </Text>
+                </Pressable>
+              </View>
             </View>
-          </View>
-        )}
-      </View>
+          )}
+        </View>
+      )}
 
     </SafeAreaView>
   );

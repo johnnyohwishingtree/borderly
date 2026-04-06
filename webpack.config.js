@@ -119,17 +119,19 @@ module.exports = (env, argv) => {
       template: path.resolve(__dirname, 'public/index.html'),
       inject: true,
     })] : []),
-    // Replace the entire storage barrel export to avoid WatermelonDB decorator compilation
-    new webpack.NormalModuleReplacementPlugin(
-      /src\/services\/storage\/index\.ts$/,
-      path.resolve(__dirname, 'e2e/mocks/storage.js')
-    ),
-    // Replace the backup barrel export to avoid WatermelonDB model imports in web builds
-    // (backupService.ts imports database.ts which imports models.ts with decorator syntax)
-    new webpack.NormalModuleReplacementPlugin(
-      /src\/services\/backup\/index\.ts$/,
-      path.resolve(__dirname, 'e2e/mocks/backup.js')
-    ),
+    // Replace storage/backup barrels with mocks for E2E tests.
+    // For Vercel deployment builds, .web.ts extension resolution handles this
+    // automatically (index.web.ts replaces index.ts), so we skip the mock.
+    ...(!isVercel ? [
+      new webpack.NormalModuleReplacementPlugin(
+        /src\/services\/storage\/index\.ts$/,
+        path.resolve(__dirname, 'e2e/mocks/storage.js')
+      ),
+      new webpack.NormalModuleReplacementPlugin(
+        /src\/services\/backup\/index\.ts$/,
+        path.resolve(__dirname, 'e2e/mocks/backup.js')
+      ),
+    ] : []),
     // Replace RN Web's no-op Alert with native browser dialog implementation
     new webpack.NormalModuleReplacementPlugin(
       /react-native-web\/dist\/exports\/Alert\/index\.js$/,

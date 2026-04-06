@@ -24,7 +24,7 @@ import { resolve } from 'path';
 
 const ROOT = resolve(__dirname, '../../..');
 
-test.skip('web keychain implementation exists', () => {
+test('web keychain implementation exists', () => {
   // Could be at service level or in the keychain subdirectory
   const paths = [
     'src/services/storage/keychain/keychainService.web.ts',
@@ -35,7 +35,7 @@ test.skip('web keychain implementation exists', () => {
   expect(found).toBe(true);
 });
 
-test.skip('web keychain uses Web Crypto for encryption', () => {
+test('web keychain uses Web Crypto for encryption', () => {
   // Find whichever web keychain file exists and check it uses crypto.subtle
   const paths = [
     'src/services/storage/keychain/keychainService.web.ts',
@@ -53,7 +53,7 @@ test.skip('web keychain uses Web Crypto for encryption', () => {
   expect(content).toMatch(/indexedDB|IDBDatabase|idb/i);
 });
 
-test.skip('web keychain implements storeProfileById and getProfileById', () => {
+test('web keychain implements storeProfileById and getProfileById', () => {
   const paths = [
     'src/services/storage/keychain/keychainService.web.ts',
     'src/services/storage/keychain/webKeychainService.ts',

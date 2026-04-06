@@ -21,7 +21,7 @@ import { resolve } from 'path';
 
 const ROOT = resolve(__dirname, '../../..');
 
-test.skip('webpack config conditionally applies storage mock for E2E only', () => {
+test('webpack config conditionally applies storage mock for E2E only', () => {
   const config = readFileSync(resolve(ROOT, 'webpack.config.js'), 'utf-8');
 
   // The NormalModuleReplacementPlugin for storage/index.ts must be
@@ -30,20 +30,17 @@ test.skip('webpack config conditionally applies storage mock for E2E only', () =
   // Key: Vercel build should NOT mock the storage barrel
   expect(config).toMatch(/isVercel|isDeploymentBuild/);
 
-  // The storage replacement line should be inside a conditional
-  // (we can't fully parse JS, but the pattern should show conditionality)
-  expect(config).not.toMatch(
-    /NormalModuleReplacementPlugin\(\s*\/src\\\/services\\\/storage\\\/index/
-  );
+  // The storage replacement must be inside a conditional block (spread with !isVercel)
+  expect(config).toMatch(/!isVercel/);
 });
 
-test.skip('package.json vercel:build script exists', () => {
+test('package.json vercel:build script exists', () => {
   const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf-8'));
   expect(pkg.scripts['vercel:build']).toBeDefined();
   expect(pkg.scripts['vercel:build']).toMatch(/webpack/);
 });
 
-test.skip('web storage implementations exist for all three tiers', () => {
+test('web storage implementations exist for all three tiers', () => {
   // .web.ts variants must exist so webpack extension resolution
   // picks them up automatically on web builds
   const webFiles = [
